@@ -60,6 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+
   // Voice Research Query Listener (🎙️ Microphone Speech Recognition)
   if (voiceBtn && userPromptInput) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -99,6 +100,8 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("Voice recognition is not supported in this browser environment.");
       });
     }
+  }
+
 
 
   const userDropdownTrigger = document.getElementById("userDropdownTrigger");
@@ -621,17 +624,18 @@ document.addEventListener("DOMContentLoaded", () => {
         .map((c) => c.trim())
         .filter((c, idx, arr) => idx > 0 && idx < arr.length - 1);
     const headers = parseRow(headerLine);
-    const headerHtml = headers.map((h) => `<th>${h}</th>`).join("");
+    const headerHtml = headers.map((h) => "<th>" + h + "</th>").join("");
 
     const bodyHtml = rowLines
       .map((row) => {
         const cells = parseRow(row);
-        return `<tr>${cells.map((c) => `<td>${c}</td>`).join("")}</tr>`;
+        return "<tr>" + cells.map((c) => "<td>" + c + "</td>").join("") + "</tr>";
       })
       .join("");
 
-    return `<div class="table-wrapper"><table class="custom-table"><thead><tr>${headerHtml}</tr></thead><tbody>${bodyHtml}</tbody></table></div>`;
+    return '<div class="table-wrapper"><table class="custom-table"><thead><tr>' + headerHtml + '</tr></thead><tbody>' + bodyHtml + '</tbody></table></div>';
   }
+
 
   function parseMarkdownToHTML(text) {
     if (!text) return "";

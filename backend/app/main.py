@@ -11,6 +11,7 @@ from app.api.v1.api import api_router
 from app.api import research_router
 from app.core.config import settings
 from app.db.init_pgvector import init_pgvector
+from app.db.init_users_db import init_users_table
 from app.db.session import engine
 
 
@@ -20,14 +21,20 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Initializing application and pgvector extension on Supabase...")
+    logger.info("Initializing application, pgvector extension, and aura_users table on Supabase PostgreSQL...")
     try:
         await init_pgvector()
     except Exception as e:
         logger.warning(f"pgvector startup initialization warning: {e}")
+    
+    try:
+        await init_users_table()
+    except Exception as e:
+        logger.warning(f"aura_users table initialization warning: {e}")
     yield
     logger.info("Disposing database connection pool...")
     await engine.dispose()
+
 
 
 app = FastAPI(

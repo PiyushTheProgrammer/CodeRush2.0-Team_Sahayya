@@ -71,6 +71,9 @@ class LoginRequest(BaseModel):
 
 
 
+from app.db.init_users_db import get_user_by_email_db, create_user_db, hash_password
+
+
 class CleanupRequest(BaseModel):
     topic_ids: Optional[List[str]] = None
     cleanup_all_inactive: bool = True
@@ -79,10 +82,13 @@ class CleanupRequest(BaseModel):
 @router.post("/auth/register", response_model=AuthResponse)
 async def register_user(request: RegisterRequest):
     """
-    Register a new user in AURA Research Ecosystem.
+    Register a new user in AURA Research Ecosystem using PostgreSQL database.
     """
     email_clean = request.email.lower().strip()
-    if email_clean in MOCK_USERS_DB:
+    
+    # 1. Check PostgreSQL DB first
+    existing_user = await get_user_by_email_db(email_clean)
+    if existing_user or email_clean in MOCK_USERS_DB:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Account with this email address already exists. Please login instead.",
@@ -90,61 +96,87 @@ async def register_user(request: RegisterRequest):
     
     user_id = f"user-{uuid.uuid4().hex[:8]}"
     token = f"aura-jwt-token-{uuid.uuid4().hex[:16]}"
+    pass_hash = hash_password(request.password)
+    tier_val = request.tier_choice or "FREEMIUM"
     
+    # 2. Insert into PostgreSQL DB
+    db_user = await create_user_db(
+        user_id=user_id,
+        full_name=request.full_name,
+        email=email_clean,
+        password_hash=pass_hash,
+        user_tier=tier_val
+    )
+
+    # Backup to memory cache as fallback
     new_user = {
         "user_id": user_id,
         "email": email_clean,
         "full_name": request.full_name,
-        "password_hash": f"hashed_{request.password}",
-        "user_tier": request.tier_choice or "FREEMIUM",
+        "password_hash": pass_hash,
+        "user_tier": tier_val,
         "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ")
     }
     MOCK_USERS_DB[email_clean] = new_user
 
-    logger.info(f"Registered new user '{request.full_name}' ({email_clean}) with tier '{new_user['user_tier']}'")
+    logger.info(f"Registered user '{request.full_name}' ({email_clean}) in PostgreSQL DB with tier '{tier_val}'")
 
     return AuthResponse(
         success=True,
-        message="Registration successful! Welcome to AURA Intelligence Ecosystem.",
+        message="Registration successful in PostgreSQL DB! Welcome to AURA Ecosystem.",
         token=token,
         user_id=user_id,
         full_name=request.full_name,
         email=email_clean,
-        user_tier=new_user["user_tier"]
+        user_tier=tier_val
     )
 
 
 @router.post("/auth/login", response_model=AuthResponse)
 async def login_user(request: LoginRequest):
     """
-    Authenticate existing user credentials and return session token.
+    Authenticate existing user credentials from PostgreSQL database and return session token.
     """
     email_clean = request.email.lower().strip()
-    user = MOCK_USERS_DB.get(email_clean)
+    
+    # 1. Check PostgreSQL DB
+    user = await get_user_by_email_db(email_clean)
+    if not user:
+        user = MOCK_USERS_DB.get(email_clean)
     
     if not user:
-        # Auto-provision guest user for seamless demo login if not registered
+        # Auto-provision guest user in PostgreSQL DB for seamless login
         user_id = f"user-{uuid.uuid4().hex[:8]}"
+        pass_hash = hash_password(request.password)
+        name_val = email_clean.split("@")[0].capitalize()
+        db_user = await create_user_db(
+            user_id=user_id,
+            full_name=name_val,
+            email=email_clean,
+            password_hash=pass_hash,
+            user_tier="FREEMIUM"
+        )
         user = {
             "user_id": user_id,
             "email": email_clean,
-            "full_name": email_clean.split("@")[0].capitalize(),
+            "full_name": name_val,
             "user_tier": "FREEMIUM"
         }
         MOCK_USERS_DB[email_clean] = user
 
     token = f"aura-jwt-token-{uuid.uuid4().hex[:16]}"
-    logger.info(f"User '{user['full_name']}' logged in successfully.")
+    logger.info(f"User '{user['full_name']}' logged in via PostgreSQL DB.")
 
     return AuthResponse(
         success=True,
-        message="Login successful.",
+        message="Login successful via PostgreSQL DB.",
         token=token,
         user_id=user["user_id"],
         full_name=user["full_name"],
         email=user["email"],
         user_tier=user["user_tier"]
     )
+
 
 
 @router.get("/auth/me")

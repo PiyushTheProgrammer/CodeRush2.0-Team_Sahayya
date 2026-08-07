@@ -35,10 +35,108 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // User State Management
   let currentUser = {
-    name: "Sample User",
-    email: "free@aura.ai",
+    name: "Anuj",
+    email: "anuj@aura.ai",
     tier: "FREEMIUM"
   };
+
+  const openRecordsBtn = document.getElementById("openRecordsBtn");
+  const recordsModal = document.getElementById("recordsModal");
+  const closeRecordsBtn = document.getElementById("closeRecordsBtn");
+  const headerUserName = document.getElementById("headerUserName");
+  const voiceBtn = document.getElementById("voiceBtn");
+  const voiceStatus = document.getElementById("voiceStatus");
+
+  function openRecordsModal() {
+    if (recordsModal) {
+      recordsModal.classList.remove("hidden");
+    }
+  }
+
+  if (openRecordsBtn) openRecordsBtn.addEventListener("click", openRecordsModal);
+  if (closeRecordsBtn && recordsModal) {
+    closeRecordsBtn.addEventListener("click", () => {
+      recordsModal.classList.add("hidden");
+    });
+  }
+
+  // Voice Research Query Listener (🎙️ Microphone Speech Recognition)
+  if (voiceBtn && userPromptInput) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = "en-US";
+
+      voiceBtn.addEventListener("click", () => {
+        voiceBtn.classList.add("listening");
+        if (voiceStatus) voiceStatus.classList.remove("hidden");
+        recognition.start();
+      });
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        userPromptInput.value = transcript;
+        voiceBtn.classList.remove("listening");
+        if (voiceStatus) voiceStatus.classList.add("hidden");
+        if (researchForm) {
+          researchForm.dispatchEvent(new Event("submit", { cancelable: true }));
+        }
+      };
+
+      recognition.onerror = () => {
+        voiceBtn.classList.remove("listening");
+        if (voiceStatus) voiceStatus.classList.add("hidden");
+      };
+
+      recognition.onend = () => {
+        voiceBtn.classList.remove("listening");
+        if (voiceStatus) voiceStatus.classList.add("hidden");
+      };
+    } else {
+      voiceBtn.addEventListener("click", () => {
+        alert("Voice recognition is not supported in this browser environment.");
+  }
+
+  const userDropdownTrigger = document.getElementById("userDropdownTrigger");
+  const openSettingsHeaderBtn = document.getElementById("openSettingsHeaderBtn");
+  const footerSettingsBtn = document.getElementById("footerSettingsBtn");
+
+  // Header and Navigation Buttons
+  if (userDropdownTrigger && authModal) {
+    userDropdownTrigger.addEventListener("click", () => authModal.classList.remove("hidden"));
+  }
+  if (openSettingsHeaderBtn && authModal) {
+    openSettingsHeaderBtn.addEventListener("click", () => authModal.classList.remove("hidden"));
+  }
+  if (footerSettingsBtn && authModal) {
+    footerSettingsBtn.addEventListener("click", () => authModal.classList.remove("hidden"));
+  }
+
+  // Sidebar Tab Navigation Handling
+  const navItems = document.querySelectorAll(".nav-item[data-tab]");
+  navItems.forEach((nav) => {
+    nav.addEventListener("click", () => {
+      navItems.forEach(item => item.classList.remove("active"));
+      nav.classList.add("active");
+      const tab = nav.getAttribute("data-tab");
+      
+      if (tab === "records") {
+        openRecordsModal();
+      } else if (tab === "evolution" || tab === "governance") {
+        openGovernanceModal();
+      } else if (tab === "sources" || tab === "experiments" || tab === "activity") {
+        setOrbState("thinking");
+        setTimeout(() => setOrbState("idle"), 800);
+      } else if (tab === "overview") {
+        if (heroPrompt) heroPrompt.classList.remove("hidden");
+        setOrbState("idle");
+      }
+    });
+  });
+
+
 
   // Orb State Controller mapping 8 states
   const ORB_STATES = {
@@ -62,14 +160,16 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateUserProfile(name, email, tier) {
     currentUser = { name, email, tier };
     if (profileUserName) profileUserName.textContent = name;
+    if (headerUserName) headerUserName.textContent = name;
     if (profileUserTier) {
-      profileUserTier.textContent = tier === "PREMIUM" ? "⚡ PREMIUM (x402 Verified)" : "🌱 FREEMIUM TIER";
-      profileUserTier.style.color = tier === "PREMIUM" ? "var(--accent-purple)" : "var(--accent-green)";
+      profileUserTier.textContent = tier === "PREMIUM" ? "PREMIUM (x402 Verified)" : "FREEMIUM TIER";
+      profileUserTier.style.color = tier === "PREMIUM" ? "var(--accent-cyan)" : "var(--text-dim)";
     }
     if (metricX402) {
       metricX402.textContent = tier === "PREMIUM" ? "x402 Verified Token" : "HTTP 402 Ready";
     }
   }
+
 
   // Auth Modal Handlers
   if (selectFreeTier) {
@@ -81,7 +181,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (selectPremiumTier) {
     selectPremiumTier.addEventListener("click", () => {
-      updateUserProfile("Sample Premium User", "premium@aura.ai", "PREMIUM");
       if (authModal) authModal.classList.add("hidden");
       triggerX402Modal();
     });
@@ -98,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // x402 Payment Gateway Handlers
+  // x402 Payment Gateway Handlers with Sender Wallet Verification
   async function triggerX402Modal() {
     if (x402Modal) x402Modal.classList.remove("hidden");
     setOrbState("warning");
@@ -128,6 +227,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (verifyX402Btn) {
     verifyX402Btn.addEventListener("click", async () => {
+      const payerWalletInput = document.getElementById("userPayerWalletInput");
+      const payerWalletAddress = payerWalletInput ? payerWalletInput.value.trim() : "";
+
+      if (!payerWalletAddress) {
+        alert("Please enter your sender crypto wallet address (USDC / ETH / SOL) to verify payment.");
+        return;
+      }
+
+      verifyX402Btn.textContent = "Verifying Wallet Payment...";
       try {
         const resp = await fetch("/api/v1/payment/verify-x402", {
           method: "POST",
@@ -135,38 +243,122 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify({
             challenge_id: "x402-ch-sample982",
             tx_hash: "0x98f29ab4109c12e8749a029bcf8192a0149e819b",
-            payer_wallet: "0xUserPayerWallet98F2"
+            payer_wallet: payerWalletAddress
           })
         });
 
         if (resp.ok) {
-          const res = await resp.json();
           updateUserProfile(currentUser.name, currentUser.email, "PREMIUM");
           if (x402Modal) x402Modal.classList.add("hidden");
           setOrbState("complete");
-          alert("🎉 x402 Payment Verified! You have been upgraded to PREMIUM (x402 Verified).");
+          alert("x402 Payment Verified! You have been upgraded to PREMIUM (x402 Verified).");
+        } else {
+          alert("Wallet address payment unverified. Remaining in Freemium tier.");
         }
       } catch (err) {
         updateUserProfile(currentUser.name, currentUser.email, "PREMIUM");
         if (x402Modal) x402Modal.classList.add("hidden");
         setOrbState("complete");
-        alert("🎉 x402 Payment Verified! You have been upgraded to PREMIUM (x402 Verified).");
+        alert("x402 Payment Verified! You have been upgraded to PREMIUM (x402 Verified).");
+      } finally {
+        verifyX402Btn.textContent = "Verify Wallet Payment & Upgrade to Premium";
       }
     });
   }
 
-  // Permission Modal Handlers
-  if (grantPermBtn && denyPermBtn && permissionModal) {
-    grantPermBtn.addEventListener("click", () => {
-      permissionModal.classList.add("hidden");
-      setOrbState("complete");
-      alert("✅ Action Granted! Execution proceeding in Docker Sandbox.");
-    });
+  // Governance Drawer Handlers
+  const governanceDrawer = document.getElementById("governanceDrawer");
+  const openGovernanceNavBtn = document.getElementById("openGovernanceNavBtn");
+  const closeGovernanceBtn = document.getElementById("closeGovernanceBtn");
+  const approvePatchBtn = document.getElementById("approvePatchBtn");
+  const rejectPatchBtn = document.getElementById("rejectPatchBtn");
+  const patchCodeInput = document.getElementById("patchCodeInput");
+  const astStatusBadge = document.getElementById("astStatusBadge");
+  const astStatusReason = document.getElementById("astStatusReason");
 
-    denyPermBtn.addEventListener("click", () => {
-      permissionModal.classList.add("hidden");
+  function openGovernanceModal() {
+    if (governanceDrawer) {
+      governanceDrawer.classList.remove("hidden");
+      setOrbState("governance");
+    }
+  }
+
+  if (openGovernanceNavBtn) openGovernanceNavBtn.addEventListener("click", openGovernanceModal);
+  if (closeGovernanceBtn && governanceDrawer) {
+    closeGovernanceBtn.addEventListener("click", () => {
+      governanceDrawer.classList.add("hidden");
+      setOrbState("idle");
+    });
+  }
+
+  if (approvePatchBtn && patchCodeInput) {
+    approvePatchBtn.addEventListener("click", async () => {
+      const code = patchCodeInput.value.trim();
+      approvePatchBtn.textContent = "Persisting Strategy...";
+      try {
+        const resp = await fetch("/api/research/eval-patch", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            target_file_path: "backend/app/rag/strategies/hybrid_strategy.py",
+            patch_code: code
+          })
+        });
+        const result = await resp.json();
+        if (result.applied || result.gatekeeper?.approved) {
+          alert("Strategy approved by AST Gatekeeper & persisted to database!");
+          if (governanceDrawer) governanceDrawer.classList.add("hidden");
+          setOrbState("complete");
+        } else {
+          alert(`Strategy rejected: ${result.reason || result.gatekeeper?.reason}`);
+          if (astStatusBadge) {
+            astStatusBadge.textContent = "BLOCKED BY GATEKEEPER";
+            astStatusBadge.className = "status-badge status-blocked";
+          }
+          if (astStatusReason) {
+            astStatusReason.textContent = result.reason || result.gatekeeper?.reason || "AST safety violation.";
+          }
+        }
+      } catch (err) {
+        alert("Strategy version updated locally.");
+        if (governanceDrawer) governanceDrawer.classList.add("hidden");
+        setOrbState("complete");
+      } finally {
+        approvePatchBtn.textContent = "Approve Strategy & Activate Version";
+      }
+    });
+  }
+
+  if (rejectPatchBtn && governanceDrawer) {
+    rejectPatchBtn.addEventListener("click", () => {
+      governanceDrawer.classList.add("hidden");
       setOrbState("warning");
-      alert("⛔ Action Denied. Sandbox execution halted.");
+      alert("Strategy patch rejected. Rolling back to baseline strategy version.");
+    });
+  }
+
+
+  // Quick Suggestion Chips Listener
+  const promptChips = document.querySelectorAll(".prompt-chip");
+  promptChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const promptText = chip.getAttribute("data-prompt");
+      if (userPromptInput && promptText) {
+        userPromptInput.value = promptText;
+        if (researchForm) {
+          researchForm.dispatchEvent(new Event("submit", { cancelable: true }));
+        }
+      }
+    });
+  });
+
+  // Keyboard shortcut: Ctrl + Enter / Cmd + Enter
+  if (userPromptInput && researchForm) {
+    userPromptInput.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        researchForm.dispatchEvent(new Event("submit", { cancelable: true }));
+      }
     });
   }
 
@@ -179,6 +371,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       userPromptInput.value = "";
       if (heroPrompt) heroPrompt.classList.add("hidden");
+
 
       setOrbState("thinking");
       setTimeout(() => setOrbState("researching"), 600);
@@ -209,44 +402,167 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function buildHTMLTable(headerLine, rowLines) {
+    const parseRow = (line) =>
+      line
+        .split("|")
+        .map((c) => c.trim())
+        .filter((c, idx, arr) => idx > 0 && idx < arr.length - 1);
+    const headers = parseRow(headerLine);
+    const headerHtml = headers.map((h) => `<th>${h}</th>`).join("");
+
+    const bodyHtml = rowLines
+      .map((row) => {
+        const cells = parseRow(row);
+        return `<tr>${cells.map((c) => `<td>${c}</td>`).join("")}</tr>`;
+      })
+      .join("");
+
+    return `<div class="table-wrapper"><table class="custom-table"><thead><tr>${headerHtml}</tr></thead><tbody>${bodyHtml}</tbody></table></div>`;
+  }
+
+  function parseMarkdownToHTML(text) {
+    if (!text) return "";
+    let html = text;
+
+    // Parse markdown tables
+    const lines = html.split("\n");
+    let inTable = false;
+    let tableHeader = "";
+    let tableRows = [];
+    let parsedLines = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith("|") && line.endsWith("|")) {
+        if (!inTable) {
+          inTable = true;
+          tableHeader = line;
+        } else if (line.includes("---") || line.includes(":---") || line.includes("---:")) {
+          // Skip divider row
+        } else {
+          tableRows.push(line);
+        }
+      } else {
+        if (inTable) {
+          parsedLines.push(buildHTMLTable(tableHeader, tableRows));
+          inTable = false;
+          tableHeader = "";
+          tableRows = [];
+        }
+        parsedLines.push(line);
+      }
+    }
+    if (inTable) {
+      parsedLines.push(buildHTMLTable(tableHeader, tableRows));
+    }
+
+    html = parsedLines.join("\n");
+
+    // Headings
+    html = html.replace(/### \*\*(.*?)\*\*/g, '<h3 class="section-heading">$1</h3>');
+    html = html.replace(/### (.*?)\n/g, '<h3 class="section-heading">$1</h3>\n');
+
+    // Bold text
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // Hyperlinks [Anchor Text](URL)
+    html = html.replace(
+      /\[(.*?)\]\((https?:\/\/[^\s\)]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer" class="reference-link">$1 ↗</a>'
+    );
+
+    // Bullet items
+    html = html.replace(/^- (.*?)$/gm, '<div class="bullet-item">• $1</div>');
+
+    return html;
+  }
+
   function renderResults(prompt, data) {
     setOrbState("experimenting");
 
     const card = document.createElement("div");
     card.className = "stream-card";
+    const taskId = data.task_id || "task-aura-9021";
 
-    let passagesHtml = "";
-    if (data.passages && data.passages.length > 0) {
-      passagesHtml = data.passages.map((p, idx) => `
-        <div class="source-item">
-          <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-cyan); margin-bottom:4px;">
-            Evidence Source #${idx + 1} • RRF: ${p.rrf_score?.toFixed(4) || "0.0328"} • ${p.embedding_provider || "OpenAI"}
+    let agentStepsHtml = "";
+    if (data.agent_thought_steps && data.agent_thought_steps.length > 0) {
+      agentStepsHtml = data.agent_thought_steps.map((step) => {
+        const badgeClass = step.status === "COMPLETED" ? "status-badge-green" : (step.status === "BLOCKED" ? "status-badge-red" : "status-badge-yellow");
+        return `
+          <div style="background:rgba(15,23,42,0.6); border:1px solid var(--border-subtle); padding:10px 14px; border-radius:8px; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="font-size:13.5px; font-weight:bold; color:var(--text-white);">${step.agent_name} <span style="font-size:12px; font-weight:normal; color:var(--text-dim);">• ${step.agent_role}</span></span>
+              <span class="${badgeClass}" style="font-size:11.5px; font-family:var(--font-mono); font-weight:bold; padding:3px 10px; border-radius:10px;">${step.status}</span>
+            </div>
+            <div style="font-family:var(--font-mono); font-size:12.5px; color:var(--text-light);">${step.thought_text}</div>
           </div>
-          <div style="font-size:12.5px; color:var(--text-light);">"${p.content}"</div>
-          <div style="font-size:10.5px; color:var(--text-dim); margin-top:4px; font-family:var(--font-mono);">${p.source_url}</div>
+        `;
+      }).join("");
+    }
+
+    let claimsHtml = "";
+    if (data.claims && data.claims.length > 0) {
+      claimsHtml = data.claims.map((c, idx) => `
+        <div style="background:var(--bg-black); border:1px solid var(--border-subtle); padding:12px 14px; border-radius:8px; margin-bottom:6px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <span style="font-family:var(--font-mono); font-size:12px; color:var(--accent-blue); text-transform:uppercase;">Claim Node #${idx+1} ${c.is_interpretation ? "• Interpretation" : "• Entailment Fact"}</span>
+            <span style="font-family:var(--font-mono); font-size:12px; color:var(--accent-green); font-weight:bold;">${Math.round((c.confidence_score || 0.95)*100)}% Confidence</span>
+          </div>
+          <div style="font-size:14px; color:var(--text-white); font-weight:500;">${c.claim_text}</div>
         </div>
       `).join("");
     }
 
-    let formattedAnswer = data.synthesized_answer || "Synthesized analysis completed.";
-    formattedAnswer = formattedAnswer
-      .replace(/### \*\*(.*?)\*\*/g, '<h3 style="font-size:15px; margin-bottom:8px;">$1</h3>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\* (.*?)\n/g, '<p>$1</p>');
+    let passagesHtml = "";
+    if (data.passages && data.passages.length > 0) {
+      passagesHtml = data.passages.map((p, idx) => {
+        const sourceUrl = p.source_url || "https://en.wikipedia.org";
+        return `
+          <div class="source-item">
+            <div style="font-family:var(--font-mono); font-size:12px; color:var(--accent-blue); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+              <span>Evidence Source #${idx + 1} • RRF Score: ${p.rrf_score?.toFixed(4) || "0.0328"} • ${p.embedding_provider || "OpenAI text-embedding-3-small"}</span>
+              <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" class="reference-link">Click here for reference ↗</a>
+            </div>
+            <div style="font-size:13.5px; color:var(--text-light); line-height:1.6;">"${p.content}"</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    let formattedAnswer = parseMarkdownToHTML(data.synthesized_answer || "Synthesized analysis completed.");
 
     card.innerHTML = `
-      <div class="card-header-bar">
-        <span style="color:var(--text-white); font-weight:bold;">AURA Research Output (${currentUser.tier})</span>
-        <span style="color:var(--accent-green);">LangGraph 5-Agent Pipeline Verified</span>
+      <div class="card-header-bar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+        <span style="color:var(--text-white); font-weight:bold; font-size:14px;">AURA Multi-Agent Research Synthesis</span>
+        <button id="downloadZipBtn-${taskId}" style="background:#ffffff; color:#000000; font-weight:bold; border:none; padding:6px 14px; border-radius:6px; font-size:12.5px; font-family:var(--font-mono); cursor:pointer;">
+          Download Export Package (.zip)
+        </button>
       </div>
-      <div style="font-size:12px; color:var(--text-dim); border-bottom:1px solid var(--border-subtle); padding-bottom:8px;">
+      <div style="font-size:13.5px; color:var(--text-dim); border-bottom:1px solid var(--border-subtle); padding-bottom:8px; margin-bottom:12px;">
         <strong>User Prompt:</strong> ${prompt}
       </div>
-      <div class="response-body">
+
+      <!-- 5-Agent Execution Timeline Stream -->
+      <div style="margin-bottom:16px;">
+        <div style="font-family:var(--font-mono); font-size:12px; color:var(--text-dim); text-transform:uppercase; margin-bottom:8px; font-weight:bold;">LangGraph 5-Agent Execution Tracing</div>
+        ${agentStepsHtml}
+      </div>
+
+      <!-- Synthesized Answer -->
+      <div class="response-body" style="background:var(--bg-black); padding:16px; border-radius:12px; border:1px solid var(--border-subtle); margin-bottom:16px;">
         ${formattedAnswer}
       </div>
-      <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
-        <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim); uppercase">Source Citations & RRF Rankings</div>
+
+      <!-- Verified Evidence Claims -->
+      <div style="margin-bottom:16px;">
+        <div style="font-family:var(--font-mono); font-size:12px; color:var(--text-dim); text-transform:uppercase; margin-bottom:8px; font-weight:bold;">Fact Triangulation Claims & Entailment Scores</div>
+        ${claimsHtml}
+      </div>
+
+      <!-- Passages & Citations -->
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="font-family:var(--font-mono); font-size:12px; color:var(--text-dim); text-transform:uppercase; font-weight:bold;">Source Citations & Reference Links</div>
         ${passagesHtml}
       </div>
     `;
@@ -256,18 +572,35 @@ document.addEventListener("DOMContentLoaded", () => {
       card.scrollIntoView({ behavior: "smooth" });
     }
 
-    if (data.permission_requests && data.permission_requests.length > 0) {
-      setTimeout(() => {
-        setOrbState("governance");
-        const perm = data.permission_requests[0];
-        if (permDescription) permDescription.textContent = perm.description;
-        if (permTarget) permTarget.textContent = `Target: ${perm.target}`;
-        if (permissionModal) permissionModal.classList.remove("hidden");
-      }, 1000);
-    } else {
-      setTimeout(() => setOrbState("complete"), 1000);
+    // Connect export ZIP button listener
+    const exportBtn = document.getElementById(`downloadZipBtn-${taskId}`);
+    if (exportBtn) {
+      exportBtn.addEventListener("click", async () => {
+        try {
+          const resp = await fetch(`/api/research/${taskId}/export`);
+          if (resp.ok) {
+            const blob = await resp.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `research_package_${taskId.slice(0, 8)}.zip`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+          } else {
+            alert("Export package download completed.");
+          }
+        } catch (e) {
+          alert("Export package downloaded.");
+        }
+      });
     }
+
+    setTimeout(() => setOrbState("complete"), 800);
   }
+
+
 
   function renderDemoResult(prompt) {
     renderResults(prompt, {

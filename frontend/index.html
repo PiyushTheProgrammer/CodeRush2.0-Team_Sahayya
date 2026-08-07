@@ -3,22 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AURA - Autonomous Unified Research Agent</title>
-  <meta name="description" content="AURA - Autonomous Unified Research Agent with 5-Agent LangGraph Orchestration & x402 Protocol Payments">
+  <title>AURA - Autonomous Research Intelligence</title>
+  <meta name="description" content="AURA - Autonomous Research Intelligence with 5-Agent LangGraph Orchestration & x402 Protocol Payments">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="monochrome-theme">
+<body class="intelligence-room-theme">
+
+  <!-- Top System Header Bar -->
+  <header class="top-header-bar font-mono">
+    <div class="header-left">
+      <span class="brand-title">AURA <span class="brand-symbol">◌</span></span>
+      <span class="brand-subtitle">Autonomous Research Intelligence</span>
+    </div>
+    <div class="header-right">
+      <span class="header-status-label">Research Intelligence</span>
+      <span class="live-pill"><span class="pulse-dot"></span> LIVE</span>
+      <div class="user-dropdown" id="userDropdownTrigger">
+        <span id="headerUserName">Anuj</span> ▾
+      </div>
+      <button class="icon-gear-btn" id="openSettingsHeaderBtn" title="Settings">⚙️</button>
+    </div>
+  </header>
   
-  <!-- 3-Panel Main Layout according to hand-drawn architecture diagram -->
+  <!-- 3-Panel Main Intelligence Room Layout -->
   <div class="diagram-layout">
     
-    <!-- Left Sidebar Navigation -->
+    <!-- Left Intelligence Sidebar Navigation -->
     <aside class="sidebar-left">
       <div class="sidebar-header">
         <div class="logo-circle">A</div>
@@ -27,82 +43,152 @@
 
       <nav class="nav-menu">
         <button class="nav-item active" data-tab="overview">
-          <span class="nav-icon">📊</span> Overview
+          <span class="nav-symbol">◌</span> OVERVIEW
         </button>
         <button class="nav-item" data-tab="research">
-          <span class="nav-icon">🔍</span> Research
+          <span class="nav-symbol">✦</span> RESEARCH
         </button>
-        <button class="nav-item" data-tab="records">
-          <span class="nav-icon">📁</span> your Records
+        <button class="nav-item" data-tab="records" id="openRecordsBtn">
+          <span class="nav-symbol">◎</span> YOUR RECORDS
         </button>
-        <button class="nav-item" data-tab="evolution">
-          <span class="nav-icon">🧬</span> Evolution
+        <button class="nav-item" data-tab="sources">
+          <span class="nav-symbol">◈</span> SOURCES
         </button>
-        <button class="nav-item" data-tab="pattern">
-          <span class="nav-icon">🎨</span> Pattern studio
+        <button class="nav-item" data-tab="experiments">
+          <span class="nav-symbol">◇</span> EXPERIMENTS
+        </button>
+        <button class="nav-item" data-tab="evolution" id="openEvolutionBtn">
+          <span class="nav-symbol">∿</span> EVOLUTION
+        </button>
+        <button class="nav-item" id="openGovernanceNavBtn">
+          <span class="nav-symbol">🛡️</span> GOVERNANCE
+        </button>
+        <button class="nav-item" data-tab="activity">
+          <span class="nav-symbol">≋</span> ACTIVITY
         </button>
       </nav>
 
       <div class="sidebar-footer">
-        <div class="system-status">
+        <button class="nav-item footer-link" id="footerSettingsBtn">
+          <span class="nav-symbol">⚙️</span> SETTINGS
+        </button>
+        <button class="nav-item footer-link logout" id="logoutBtn">
+          <span class="nav-symbol">↪️</span> SIGN OUT
+        </button>
+        <div class="system-status font-mono">
           <span class="pulse-dot"></span> System Standby
         </div>
       </div>
     </aside>
 
-    <!-- Center Workspace -->
+    <!-- Center Workspace (Intelligence Core) -->
     <main class="workspace-center">
       
-      <!-- Top Center Area featuring the AURA Orb with 3 small internal holes -->
-      <div class="orb-container">
-        <div class="aura-orb state-idle" id="auraOrb" title="AURA Orb State: Idle">
-          <svg viewBox="0 0 100 100" class="orb-svg">
-            <circle cx="50" cy="50" r="44" class="orb-outer-ring" />
-            <circle cx="50" cy="50" r="40" class="orb-body" />
-            
-            <!-- 3 Small Internal Holes -->
-            <circle cx="40" cy="38" r="5" class="orb-hole hole-1" />
-            <circle cx="62" cy="42" r="5" class="orb-hole hole-2" />
-            <circle cx="48" cy="64" r="5" class="orb-hole hole-3" />
-            
-            <!-- Orbiting data particles -->
-            <circle cx="50" cy="15" r="2" class="orb-particle p-1" />
-            <circle cx="85" cy="50" r="2" class="orb-particle p-2" />
-            <circle cx="50" cy="85" r="2" class="orb-particle p-3" />
-          </svg>
-        </div>
+      <!-- AURA CORE Section -->
+      <div class="aura-core-section">
+        
+        <!-- AURA Dynamic Intelligence Orb -->
+        <div class="orb-container">
+          <div class="aura-orb state-idle" id="auraOrb" title="AURA Intelligence Orb">
+            <svg viewBox="0 0 100 100" class="orb-svg">
+              <circle cx="50" cy="50" r="44" class="orb-outer-ring" />
+              <circle cx="50" cy="50" r="40" class="orb-body" />
+              
+              <!-- 3 Internal Circular Portals (◌ ◌ ◌) -->
+              <circle cx="40" cy="38" r="5.5" class="orb-hole hole-1" />
+              <circle cx="62" cy="42" r="5.5" class="orb-hole hole-2" />
+              <circle cx="48" cy="64" r="5.5" class="orb-hole hole-3" />
+              
+              <!-- Orbiting data particles -->
+              <circle cx="50" cy="15" r="2.5" class="orb-particle p-1" />
+              <circle cx="85" cy="50" r="2.5" class="orb-particle p-2" />
+              <circle cx="50" cy="85" r="2.5" class="orb-particle p-3" />
+            </svg>
+          </div>
 
-        <div class="orb-meta">
-          <div class="orb-state-label" id="orbStateLabel">AURA State: Idle (Soft Breathing)</div>
-          <div class="live-activity-indicator">
-            <span class="blink-light"></span> Live Activity Stream
+          <div class="orb-meta">
+            <div class="orb-state-label font-mono" id="orbStateLabel">AURA State: Idle (Soft Breathing)</div>
+            <div class="live-activity-indicator font-mono">
+              <span class="blink-light"></span> Live Intelligence Stream
+            </div>
           </div>
         </div>
+
+        <!-- Intelligence Core Hero Title -->
+        <div class="center-hero" id="heroPrompt">
+          <h2>What would you like to understand?</h2>
+        </div>
+
+        <!-- Input Box (Asking AURA) -->
+        <div class="input-section">
+          <form id="researchForm" class="diagram-input-box">
+            <input 
+              type="text" 
+              id="userPrompt" 
+              placeholder="Ask AURA anything..." 
+              autocomplete="off"
+              required
+            />
+            
+            <div class="input-actions font-mono">
+              <button type="button" class="icon-input-btn" id="voiceBtn" title="Voice Research Query (Microphone)">
+                🎙️
+              </button>
+              <button type="button" class="icon-input-btn" id="attachContextBtn" title="Attach Context File">
+                📎
+              </button>
+              <button type="submit" id="submitBtn" class="send-icon-btn" title="Submit Research Task">
+                ↑
+              </button>
+            </div>
+          </form>
+
+          <!-- Voice Recording Indicator -->
+          <div class="voice-status-indicator hidden font-mono" id="voiceStatus">
+            <span class="blink-light pulse-red"></span> AURA Listening... Speak your research query.
+          </div>
+
+          <!-- Suggested Directions -->
+          <div class="suggested-directions-container font-mono">
+            <span class="suggested-label">Suggested directions</span>
+            <div class="prompt-chips-container">
+              <button class="prompt-chip" data-prompt="Investigate why urban emergency response times are increasing">
+                Research a topic
+              </button>
+              <span class="dot-sep">·</span>
+              <button class="prompt-chip" data-prompt="Compare PostgreSQL pgvector HNSW vs Pinecone vector search">
+                Compare evidence
+              </button>
+              <span class="dot-sep">·</span>
+              <button class="prompt-chip" data-prompt="Investigate global autonomous vehicle safety benchmarks and trends">
+                Investigate trend
+              </button>
+              <span class="dot-sep">·</span>
+              <button class="prompt-chip" data-prompt="Run sandbox experiment on Reciprocal Rank Fusion k=60 hybrid retrieval">
+                Run experiment
+              </button>
+            </div>
+          </div>
+
+          <div class="execution-toggles font-mono">
+            <label class="toggle-pill active">
+              <input type="checkbox" checked id="toggleSelfEvolve" />
+              <span class="toggle-dot"></span> Self-Evolve Mode
+            </label>
+            <label class="toggle-pill active">
+              <input type="checkbox" checked id="toggleWebScrape" />
+              <span class="toggle-dot"></span> Real-Time Web Scraping
+            </label>
+            <label class="toggle-pill active">
+              <input type="checkbox" checked id="toggleEntailment" />
+              <span class="toggle-dot"></span> Claim Verification Guard
+            </label>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Hero Prompt Title -->
-      <div class="center-hero" id="heroPrompt">
-        <h2>What would you like to understand?</h2>
-        <p>Ask AURA to research, analyze, scrape, or synthesize any objective.</p>
-      </div>
-
-      <!-- Input Bar (Diagram Input Box) -->
-      <div class="input-section">
-        <form id="researchForm" class="diagram-input-box">
-          <input 
-            type="text" 
-            id="userPrompt" 
-            placeholder="Ask AURA anything..." 
-            autocomplete="off"
-            required
-          />
-          <button type="submit" id="submitBtn" class="send-icon-btn" title="Send Task">
-            ➔
-          </button>
-        </form>
-      </div>
-
-      <!-- Main Chat / Output Stream & Source Panel -->
+      <!-- Main Chat / Output Stream & Source Panel (Appears dynamically upon research task) -->
       <div class="output-stream-container" id="outputStreamContainer">
         <div class="feed-list" id="resultsFeed"></div>
       </div>
@@ -115,50 +201,60 @@
       <!-- Top Profile / User Box -->
       <div class="profile-box">
         <div class="user-info">
-          <div class="avatar">👤</div>
+          <div class="avatar">A</div>
           <div>
-            <div class="user-name" id="profileUserName">Sample Freemium User</div>
-            <div class="user-tier-badge" id="profileUserTier">FREEMIUM TIER</div>
+            <div class="user-name" id="profileUserName">Anuj</div>
+            <div class="user-tier-badge font-mono" id="profileUserTier">FREEMIUM TIER</div>
           </div>
         </div>
 
         <div class="profile-menu">
           <button class="profile-link" id="openAuthBtn">Sign In</button>
-          <button class="profile-link upgrade-link" id="openPricingBtn">⚡ x402 Pricing</button>
-          <button class="profile-link logout" id="logoutBtn">Logout</button>
+          <button class="profile-link upgrade-link" id="openPricingBtn">x402 Pricing</button>
         </div>
       </div>
 
       <!-- Metrics Panel -->
       <div class="metrics-panel">
-        <h3 class="panel-heading">AURA System Metrics</h3>
+        <h3 class="panel-heading font-mono">CURRENT INTELLIGENCE</h3>
 
-        <div class="metric-row">
+        <!-- Intelligence Step Pipeline Indicator -->
+        <div class="intelligence-pipeline-card font-mono">
+          <div class="pipe-step active">Planning</div>
+          <div class="pipe-arrow">───</div>
+          <div class="pipe-step">Searching</div>
+          <div class="pipe-arrow">───</div>
+          <div class="pipe-step">Verifying</div>
+          <div class="pipe-arrow">───</div>
+          <div class="pipe-step">Ready</div>
+        </div>
+
+        <div class="metric-row font-mono">
           <span class="metric-label">AURA Think</span>
           <span class="metric-val" id="metricThink">Active (OpenAI)</span>
         </div>
 
-        <div class="metric-row">
+        <div class="metric-row font-mono">
           <span class="metric-label">Evolution</span>
           <span class="metric-val" id="metricEvolution">v1.0.4 Patch</span>
         </div>
 
-        <div class="metric-row">
+        <div class="metric-row font-mono">
           <span class="metric-label">Evaluation</span>
           <span class="metric-val" id="metricEvaluation">Gemini 1.5 Flash</span>
         </div>
 
-        <div class="metric-row">
+        <div class="metric-row font-mono">
           <span class="metric-label">x402 Protocol</span>
           <span class="metric-val status-ok" id="metricX402">HTTP 402 Ready</span>
         </div>
 
-        <div class="metric-row">
+        <div class="metric-row font-mono">
           <span class="metric-label">Accuracy</span>
           <span class="metric-val" id="metricAccuracy">96.4% Entailment</span>
         </div>
 
-        <div class="langgraph-card">
+        <div class="langgraph-card font-mono">
           <div class="lg-title">LangGraph 5-Agent DAG</div>
           <div class="lg-step">1. Planner Agent</div>
           <div class="lg-step">2. Sandbox Executor</div>
@@ -172,19 +268,155 @@
 
   </div>
 
+  <!-- YOUR RECORDS Drawer / Modal (Patterns AURA has observed over time) -->
+  <div class="modal-backdrop hidden" id="recordsModal">
+    <div class="records-dialog">
+      <div class="records-header">
+        <div>
+          <h2 class="records-title">YOUR RECORDS</h2>
+          <p class="records-subtitle font-mono">Patterns AURA has observed over time</p>
+        </div>
+        <button class="close-btn" id="closeRecordsBtn">&times;</button>
+      </div>
+
+      <div class="records-body">
+        
+        <!-- Activity Sparkline Chart Box -->
+        <div class="records-card">
+          <div class="records-card-header font-mono">
+            <span>Research activity</span>
+            <span class="text-dim">Last 7 Days</span>
+          </div>
+          
+          <div class="sparkline-chart-container font-mono">
+            <div class="sparkline-bars">
+              <div class="bar-col"><div class="bar-fill" style="height: 40%;"></div><span>Mon</span></div>
+              <div class="bar-col"><div class="bar-fill" style="height: 65%;"></div><span>Tue</span></div>
+              <div class="bar-col"><div class="bar-fill" style="height: 85%;"></div><span>Wed</span></div>
+              <div class="bar-col"><div class="bar-fill" style="height: 45%;"></div><span>Thu</span></div>
+              <div class="bar-col"><div class="bar-fill" style="height: 95%;"></div><span>Fri</span></div>
+              <div class="bar-col"><div class="bar-fill" style="height: 30%;"></div><span>Sat</span></div>
+              <div class="bar-col"><div class="bar-fill" style="height: 55%;"></div><span>Sun</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Areas & Depth Grid -->
+        <div class="records-grid-row">
+          
+          <!-- Top Areas Card -->
+          <div class="records-card">
+            <h4 class="records-card-title font-mono">TOP AREAS</h4>
+            <div class="topic-row font-mono">
+              <span>Cybersecurity</span>
+              <span class="topic-bar"><span style="width: 42%;"></span></span>
+              <span>42%</span>
+            </div>
+            <div class="topic-row font-mono">
+              <span>AI & Agents</span>
+              <span class="topic-bar"><span style="width: 31%;"></span></span>
+              <span>31%</span>
+            </div>
+            <div class="topic-row font-mono">
+              <span>Defence Technology</span>
+              <span class="topic-bar"><span style="width: 17%;"></span></span>
+              <span>17%</span>
+            </div>
+            <div class="topic-row font-mono">
+              <span>Other</span>
+              <span class="topic-bar"><span style="width: 10%;"></span></span>
+              <span>10%</span>
+            </div>
+          </div>
+
+          <!-- Research Depth Card -->
+          <div class="records-card">
+            <h4 class="records-card-title font-mono">RESEARCH DEPTH</h4>
+            <div class="depth-metric-row font-mono">
+              <span>Quick investigations</span>
+              <span class="metric-num font-mono">18</span>
+            </div>
+            <div class="depth-metric-row font-mono">
+              <span>Deep investigations</span>
+              <span class="metric-num font-mono">9</span>
+            </div>
+            <div class="depth-metric-row font-mono">
+              <span>Experiments</span>
+              <span class="metric-num font-mono">4</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Emerging & Declining Grid -->
+        <div class="records-grid-row">
+          
+          <div class="records-card">
+            <h4 class="records-card-title font-mono">RECENTLY EMERGING</h4>
+            <div class="trend-item font-mono text-emerald">↑ Autonomous systems</div>
+            <div class="trend-item font-mono text-emerald">↑ Agentic AI</div>
+            <div class="trend-item font-mono text-emerald">↑ Research automation</div>
+          </div>
+
+          <div class="records-card">
+            <h4 class="records-card-title font-mono">DECLINING</h4>
+            <div class="trend-item font-mono text-dim">↓ Basic programming queries</div>
+            <div class="trend-item font-mono text-dim">↓ General searches</div>
+          </div>
+
+        </div>
+
+        <!-- AURA NOTICED (Observed Pattern Cards) -->
+        <div class="records-card aura-noticed-box">
+          <h3 class="aura-noticed-title">AURA noticed</h3>
+          
+          <div class="observation-card">
+            <div class="obs-header font-mono">
+              <span class="obs-tag">OBSERVED PATTERN</span>
+              <span class="obs-meta">Confidence: High · Based on 18 sessions</span>
+            </div>
+            <p class="obs-text">
+              <em>You are researching deeper.</em> Your average research session increased from <strong>8 min → 17 min</strong> over the last 30 days.
+            </p>
+          </div>
+
+          <div class="observation-card">
+            <div class="obs-header font-mono">
+              <span class="obs-tag">OBSERVED PATTERN</span>
+              <span class="obs-meta">Confidence: High · Based on 12 investigations</span>
+            </div>
+            <p class="obs-text">
+              <em>Your interests are converging.</em> AI agents and cybersecurity now appear together in <strong>7 of your last 12 investigations</strong>.
+            </p>
+          </div>
+
+          <div class="observation-card">
+            <div class="obs-header font-mono">
+              <span class="obs-tag">OBSERVED PATTERN</span>
+              <span class="obs-meta">Confidence: High · Based on 24 primary sources</span>
+            </div>
+            <p class="obs-text">
+              <em>Your source discipline improved.</em> You increasingly use primary/official sources before secondary sources.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- Sign In / Sign Up Modal -->
-  <div class="modal-backdrop" id="authModal">
+  <div class="modal-backdrop hidden" id="authModal">
     <div class="auth-dialog">
       <div class="auth-header">
         <h3>Welcome to AURA Platform</h3>
-        <p>Select a sample user profile to enter the Agentic Ecosystem</p>
+        <p>Select a sample user profile to enter the Intelligence Room</p>
       </div>
 
       <div class="auth-tiers">
         
         <!-- Freemium Option -->
         <div class="auth-tier-card" id="selectFreeTier">
-          <div class="tier-icon">🌱</div>
           <h4>Freemium User</h4>
           <div class="tier-price">$0 / month</div>
           <p>Access standard Hybrid RAG vector search & 5-agent thinking logs.</p>
@@ -193,7 +425,6 @@
 
         <!-- Premium Option -->
         <div class="auth-tier-card premium" id="selectPremiumTier">
-          <div class="tier-icon">⚡</div>
           <h4>Premium User (x402)</h4>
           <div class="tier-price">$5 USDC / task (or $29/mo)</div>
           <p>Unlock Playwright live web scraping, Docker Sandbox execution & x402 machine payments.</p>
@@ -204,23 +435,40 @@
     </div>
   </div>
 
-  <!-- x402 Payment Gateway Modal -->
+  <!-- x402 Payment Gateway Modal with Sender Wallet Input -->
   <div class="modal-backdrop hidden" id="x402Modal">
     <div class="x402-dialog">
       <div class="x402-header">
         <div class="x402-title-box">
-          <span class="x402-badge">HTTP 402 PAYMENT REQUIRED</span>
+          <span class="x402-badge font-mono">HTTP 402 PAYMENT REQUIRED</span>
           <h3>x402 Agentic Payment Gateway</h3>
         </div>
         <button class="close-btn" id="closeX402Btn">&times;</button>
       </div>
 
       <div class="x402-body">
-        <p class="x402-desc">AURA uses the open <strong>x402 protocol</strong> to enable autonomous agentic micro-payments for deep web scraping and container sandbox execution.</p>
+        <p class="x402-desc">AURA uses the open x402 protocol to enable autonomous agentic micro-payments for deep web scraping, container sandbox execution, and research package exports.</p>
+
+        <!-- Recipient Crypto Wallet -->
+        <div class="wallet-box">
+          <div class="wallet-label font-mono">RECIPIENT CRYPTO WALLET ADDRESS (USDC / ETH / SOL):</div>
+          <div class="wallet-address font-mono" id="x402WalletAddr">0x402AURA98F290c41A87D25b3491E6200B41E10</div>
+        </div>
+
+        <!-- User Payer Wallet Address Input -->
+        <div class="payer-wallet-input-box">
+          <label class="wallet-label font-mono">YOUR SENDER CRYPTO WALLET ADDRESS (USDC / ETH / SOL):</label>
+          <input 
+            type="text" 
+            id="userPayerWalletInput" 
+            class="font-mono payer-wallet-input" 
+            placeholder="Enter your crypto wallet address (e.g. 0xYourWalletAddress...)" 
+          />
+        </div>
 
         <!-- HTTP 402 Header Inspector -->
         <div class="challenge-inspector">
-          <div class="inspector-title">REQUEST HEADER CHALLENGE INSPECTOR:</div>
+          <div class="inspector-title font-mono">REQUEST HEADER CHALLENGE INSPECTOR:</div>
           <div class="code-block font-mono">
 HTTP/1.1 402 Payment Required
 X-Payment-Protocol: x402-agentic-v1
@@ -230,31 +478,71 @@ X-Payment-Header-Required: X-PAYMENT
           </div>
         </div>
 
-        <!-- Recipient Crypto Wallet -->
-        <div class="wallet-box">
-          <div class="wallet-label">RECIPIENT CRYPTO WALLET ADDRESS (USDC / ETH / SOL):</div>
-          <div class="wallet-address font-mono" id="x402WalletAddr">0x402AURA98F290c41A87D25b3491E6200B41E10</div>
-        </div>
-
         <!-- Payment Actions -->
         <div class="x402-actions">
-          <button class="btn-verify-x402" id="verifyX402Btn">
-            ⚡ Verify x402 Payment Proof & Upgrade to Premium
+          <button class="btn-verify-x402 font-mono" id="verifyX402Btn">
+            Verify Wallet Payment & Upgrade to Premium
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Permission Modal for Sandbox Actions -->
-  <div class="modal-backdrop hidden" id="permissionModal">
-    <div class="permission-dialog">
-      <div class="perm-title">⚠️ Human-in-the-Loop Action Required</div>
-      <p id="permDescription">Sandbox Agent requests permission to run python script in Docker Sandbox.</p>
-      <div class="perm-target" id="permTarget">Target: aura-agent-runner:latest container (512MB RAM)</div>
-      <div class="perm-buttons">
-        <button class="btn-deny" id="denyPermBtn">Deny</button>
-        <button class="btn-allow" id="grantPermBtn">Grant Permission</button>
+  <!-- Governance & AST Patch Inspector Drawer -->
+  <div class="modal-backdrop hidden" id="governanceDrawer">
+    <div class="governance-slide-drawer">
+      <div class="drawer-header">
+        <div class="drawer-title-box">
+          <h3>Governance & AST Patch Inspector</h3>
+        </div>
+        <button class="close-btn" id="closeGovernanceBtn">&times;</button>
+      </div>
+
+      <div class="drawer-body">
+        <p class="drawer-desc">Human-in-the-Loop review of self-evolution code patches before activation in production RAG engines.</p>
+
+        <div class="info-badge-row font-mono">
+          <span class="badge-label">TARGET EVOLUTION FILE:</span>
+          <span class="badge-value text-cyan">backend/app/rag/strategies/hybrid_strategy.py</span>
+        </div>
+
+        <!-- AST Status Box -->
+        <div class="ast-status-card">
+          <div class="ast-header font-mono">
+            <span>AST SAFETY GATEKEEPER</span>
+            <span class="status-badge status-approved" id="astStatusBadge">AST APPROVED</span>
+          </div>
+          <p class="ast-reason font-mono text-xs" id="astStatusReason">
+            AST parser clean: No forbidden module imports (os, sys, subprocess) or dangerous built-in calls detected.
+          </p>
+        </div>
+
+        <!-- Code Patch Inspector -->
+        <div class="code-editor-box">
+          <div class="editor-header font-mono">
+            <span>PROPOSED STRATEGY CODE (MAX 60 LINES)</span>
+            <span id="patchLineCount">15 / 60 lines</span>
+          </div>
+          <textarea id="patchCodeInput" rows="12" class="patch-textarea font-mono">def rank_passages(passages, query, rrf_k=60):
+    """Self-evolved RRF reciprocal rank fusion algorithm."""
+    ranked = []
+    for p in passages:
+        sim_score = p.get("similarity_score", 0.5)
+        freshness = p.get("freshness_score", 0.8)
+        
+        # Calculate hybrid reciprocal score
+        combined_score = (sim_score * 0.6) + (freshness * 0.4)
+        ranked.append({**p, "rrf_score": round(combined_score, 4)})
+
+    ranked.sort(key=lambda x: x["rrf_score"], reverse=True)
+    return ranked</textarea>
+        </div>
+
+        <!-- Drawer Footer Actions -->
+        <div class="drawer-actions">
+          <button class="btn-reject font-mono" id="rejectPatchBtn">Reject / Rollback</button>
+          <button class="btn-approve font-mono" id="approvePatchBtn">Approve Strategy & Activate Version</button>
+        </div>
       </div>
     </div>
   </div>
@@ -262,3 +550,6 @@ X-Payment-Header-Required: X-PAYMENT
   <script src="app.js"></script>
 </body>
 </html>
+
+
+

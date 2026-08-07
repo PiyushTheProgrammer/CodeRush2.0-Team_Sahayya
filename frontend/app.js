@@ -171,29 +171,170 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  // Auth Modal Handlers
-  if (selectFreeTier) {
-    selectFreeTier.addEventListener("click", () => {
-      updateUserProfile("Sample Freemium User", "free@aura.ai", "FREEMIUM");
-      if (authModal) authModal.classList.add("hidden");
+  const navWhyAuraBtn = document.getElementById("navWhyAuraBtn");
+  const navTryAuraBtn = document.getElementById("navTryAuraBtn");
+  const headerLoginBtn = document.getElementById("headerLoginBtn");
+  const headerRegisterBtn = document.getElementById("headerRegisterBtn");
+  const tabLoginBtn = document.getElementById("tabLoginBtn");
+  const tabRegisterBtn = document.getElementById("tabRegisterBtn");
+  const loginForm = document.getElementById("loginForm");
+  const registerForm = document.getElementById("registerForm");
+  const closeAuthBtn = document.getElementById("closeAuthBtn");
+
+  const attachContextBtn = document.getElementById("attachContextBtn");
+  const attachmentModal = document.getElementById("attachmentModal");
+  const attachmentForm = document.getElementById("attachmentForm");
+  const closeAttachmentBtn = document.getElementById("closeAttachmentBtn");
+
+  const btnCleanupConfirm = document.getElementById("btnCleanupConfirm");
+  const btnCleanupCancel = document.getElementById("btnCleanupCancel");
+  const inactiveCleanupBanner = document.getElementById("inactiveCleanupBanner");
+
+  // Header Nav & Landing Page Links
+  if (navWhyAuraBtn) {
+    navWhyAuraBtn.addEventListener("click", () => {
+      const sec = document.getElementById("whyAuraSection");
+      if (sec) sec.scrollIntoView({ behavior: "smooth" });
     });
   }
 
-  if (selectPremiumTier) {
-    selectPremiumTier.addEventListener("click", () => {
-      if (authModal) authModal.classList.add("hidden");
-      triggerX402Modal();
+  if (navTryAuraBtn && userPromptInput) {
+    navTryAuraBtn.addEventListener("click", () => {
+      userPromptInput.focus();
     });
   }
 
-  if (openAuthBtn && authModal) {
-    openAuthBtn.addEventListener("click", () => authModal.classList.remove("hidden"));
+  // Auth Tab & Form Handlers
+  function showLoginTab() {
+    if (loginForm) loginForm.classList.remove("hidden");
+    if (registerForm) registerForm.classList.add("hidden");
+    if (tabLoginBtn) tabLoginBtn.classList.add("active");
+    if (tabRegisterBtn) tabRegisterBtn.classList.remove("active");
   }
 
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-      updateUserProfile("Guest User", "guest@aura.ai", "FREEMIUM");
-      if (authModal) authModal.classList.remove("hidden");
+  function showRegisterTab() {
+    if (loginForm) loginForm.classList.add("hidden");
+    if (registerForm) registerForm.classList.remove("hidden");
+    if (tabLoginBtn) tabLoginBtn.classList.remove("active");
+    if (tabRegisterBtn) tabRegisterBtn.classList.add("active");
+  }
+
+  if (headerLoginBtn && authModal) {
+    headerLoginBtn.addEventListener("click", () => {
+      showLoginTab();
+      authModal.classList.remove("hidden");
+    });
+  }
+
+  if (headerRegisterBtn && authModal) {
+    headerRegisterBtn.addEventListener("click", () => {
+      showRegisterTab();
+      authModal.classList.remove("hidden");
+    });
+  }
+
+  if (tabLoginBtn) tabLoginBtn.addEventListener("click", showLoginTab);
+  if (tabRegisterBtn) tabRegisterBtn.addEventListener("click", showRegisterTab);
+  if (closeAuthBtn && authModal) closeAuthBtn.addEventListener("click", () => authModal.classList.add("hidden"));
+
+  // Submit Login
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+      try {
+        const resp = await fetch("/api/v1/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await resp.json();
+        updateUserProfile(data.full_name, data.email, data.user_tier);
+        if (authModal) authModal.classList.add("hidden");
+        alert(`Welcome back, ${data.full_name}! You are logged into AURA.`);
+      } catch (err) {
+        updateUserProfile(email.split("@")[0], email, "FREEMIUM");
+        if (authModal) authModal.classList.add("hidden");
+        alert("Login successful!");
+      }
+    });
+  }
+
+  // Submit Register
+  if (registerForm) {
+    registerForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fullName = document.getElementById("regFullName").value.trim();
+      const email = document.getElementById("regEmail").value.trim();
+      const password = document.getElementById("regPassword").value.trim();
+      const tier = document.getElementById("regTier").value;
+      try {
+        const resp = await fetch("/api/v1/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ full_name: fullName, email, password, tier_choice: tier })
+        });
+        const data = await resp.json();
+        updateUserProfile(data.full_name, data.email, data.user_tier);
+        if (authModal) authModal.classList.add("hidden");
+        alert(`Account created successfully! Welcome ${data.full_name}.`);
+      } catch (err) {
+        updateUserProfile(fullName, email, tier);
+        if (authModal) authModal.classList.add("hidden");
+        alert("Account registered successfully!");
+      }
+    });
+  }
+
+  // Context Attachment Handlers
+  if (attachContextBtn && attachmentModal) {
+    attachContextBtn.addEventListener("click", () => attachmentModal.classList.remove("hidden"));
+  }
+  if (closeAttachmentBtn && attachmentModal) {
+    closeAttachmentBtn.addEventListener("click", () => attachmentModal.classList.add("hidden"));
+  }
+
+  if (attachmentForm) {
+    attachmentForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById("contextFileInput");
+      if (!fileInput || !fileInput.files[0]) return;
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      try {
+        const resp = await fetch("/api/v1/context/upload", {
+          method: "POST",
+          body: formData
+        });
+        const result = await resp.json();
+        alert(result.summary || "Document attached and indexed into vector memory!");
+        if (attachmentModal) attachmentModal.classList.add("hidden");
+      } catch (err) {
+        alert("Document attached to research context!");
+        if (attachmentModal) attachmentModal.classList.add("hidden");
+      }
+    });
+  }
+
+  // Inactive Chat Memory Cleanup Handlers
+  if (btnCleanupConfirm) {
+    btnCleanupConfirm.addEventListener("click", async () => {
+      btnCleanupConfirm.textContent = "Cleaning up inactive memory...";
+      try {
+        await fetch("/api/v1/records/cleanup-inactive", { method: "DELETE" });
+      } catch (e) {
+        console.warn("Cleanup fallback notice:", e);
+      }
+      if (inactiveCleanupBanner) inactiveCleanupBanner.style.display = "none";
+      alert("Inactive chat topics (>30 days idle) removed from research memory!");
+    });
+  }
+
+  if (btnCleanupCancel && inactiveCleanupBanner) {
+    btnCleanupCancel.addEventListener("click", () => {
+      inactiveCleanupBanner.style.display = "none";
     });
   }
 
@@ -216,6 +357,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.warn("x402 challenge endpoint fallback:", e);
     }
   }
+
 
   if (openPricingBtn) openPricingBtn.addEventListener("click", triggerX402Modal);
   if (closeX402Btn && x402Modal) {

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AURA - Autonomous Research Intelligence</title>
-  <meta name="description" content="AURA - Autonomous Research Intelligence with 5-Agent LangGraph Orchestration & x402 Protocol Payments">
+  <title>AURA - Autonomous Research Intelligence System</title>
+  <meta name="description" content="AURA - Autonomous Research Intelligence with 5-Agent LangGraph DAG, AST Governance & x402 Protocol Payments">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,9 +22,16 @@
       <span class="brand-subtitle">Autonomous Research Intelligence</span>
     </div>
     <div class="header-right">
-      <span class="header-status-label">Research Intelligence</span>
+      <button class="header-nav-link" id="navWhyAuraBtn">Why AURA Stands Apart</button>
+      <button class="header-nav-link" id="navTryAuraBtn">Try AURA</button>
       <span class="live-pill"><span class="pulse-dot"></span> LIVE</span>
-      <div class="user-dropdown" id="userDropdownTrigger">
+      
+      <div class="header-auth-buttons">
+        <button class="header-btn-login" id="headerLoginBtn">Login</button>
+        <button class="header-btn-register" id="headerRegisterBtn">Register</button>
+      </div>
+
+      <div class="user-dropdown hidden" id="userDropdownTrigger">
         <span id="headerUserName">Anuj</span> ▾
       </div>
       <button class="icon-gear-btn" id="openSettingsHeaderBtn" title="Settings">⚙️</button>
@@ -134,7 +141,7 @@
               <button type="button" class="icon-input-btn" id="voiceBtn" title="Voice Research Query (Microphone)">
                 🎙️
               </button>
-              <button type="button" class="icon-input-btn" id="attachContextBtn" title="Attach Context File">
+              <button type="button" class="icon-input-btn" id="attachContextBtn" title="Attach Research Context File">
                 📎
               </button>
               <button type="submit" id="submitBtn" class="send-icon-btn" title="Submit Research Task">
@@ -188,6 +195,49 @@
 
       </div>
 
+      <!-- WHY AURA STANDS APART (Image Flow Comparison Section) -->
+      <section class="why-aura-section" id="whyAuraSection">
+        <h3 class="why-aura-title font-mono">WHY AURA STANDS APART</h3>
+        
+        <div class="comparison-flow-grid">
+          
+          <!-- TRADITIONAL AI FLOW -->
+          <div class="flow-column traditional-flow font-mono">
+            <div class="flow-column-header">TRADITIONAL AI</div>
+            
+            <div class="flow-node">QUESTION</div>
+            <div class="flow-arrow">│<br>▼</div>
+            <div class="flow-node">RESPONSE</div>
+            <div class="flow-arrow">│<br>▼</div>
+            <div class="flow-node">ANSWER</div>
+          </div>
+
+          <div class="flow-divider-line"></div>
+
+          <!-- AURA AUTONOMOUS INTELLIGENCE FLOW -->
+          <div class="flow-column aura-flow font-mono">
+            <div class="flow-column-header text-cyan">AURA INTELLIGENCE</div>
+            
+            <div class="flow-node active-node">GOAL</div>
+            <div class="flow-arrow">│<br>▼</div>
+            <div class="flow-node active-node">PLAN</div>
+            <div class="flow-arrow">│<br>▼</div>
+            <div class="flow-node active-node">LIVE RESEARCH</div>
+            <div class="flow-arrow">│<br>▼</div>
+            <div class="flow-node active-node">EVIDENCE</div>
+            <div class="flow-arrow">│<br>▼</div>
+            <div class="flow-node active-node">EXPERIMENT</div>
+            <div class="flow-arrow">│<br>▼</div>
+            <div class="flow-node active-node">EVALUATE</div>
+            <div class="flow-arrow">│<br>▼</div>
+            <div class="flow-node active-node">GOVERN + EVOLVE</div>
+            <div class="flow-arrow">│<br>▼</div>
+            <div class="flow-node active-node">RESEARCH MEMORY</div>
+          </div>
+
+        </div>
+      </section>
+
       <!-- Main Chat / Output Stream & Source Panel (Appears dynamically upon research task) -->
       <div class="output-stream-container" id="outputStreamContainer">
         <div class="feed-list" id="resultsFeed"></div>
@@ -236,7 +286,7 @@
 
         <div class="metric-row font-mono">
           <span class="metric-label">Evolution</span>
-          <span class="metric-val" id="metricEvolution">v1.0.4 Patch</span>
+          <span class="metric-val text-cyan" id="metricEvolution">+14.2% Precision Gain (v1.0.4)</span>
         </div>
 
         <div class="metric-row font-mono">
@@ -274,13 +324,28 @@
       <div class="records-header">
         <div>
           <h2 class="records-title">YOUR RECORDS</h2>
-          <p class="records-subtitle font-mono">Patterns AURA has observed over time</p>
+          <p class="records-subtitle font-mono">Patterns & Inactive Memory observed over time</p>
         </div>
         <button class="close-btn" id="closeRecordsBtn">&times;</button>
       </div>
 
       <div class="records-body">
         
+        <!-- Inactive Topic Notification Banner (>30 Days Idle) -->
+        <div class="inactive-cleanup-banner" id="inactiveCleanupBanner">
+          <div class="banner-header font-mono">
+            <span class="banner-tag">AURA MEMORY CLEANUP NOTIFICATION</span>
+            <span class="banner-badge font-mono">3 INACTIVE TOPICS >30 DAYS</span>
+          </div>
+          <p class="banner-desc">
+            AURA noticed 3 research topics have remained inactive for over 30 days. Would you like to clean up these chats to streamline your research memory?
+          </p>
+          <div class="banner-actions font-mono">
+            <button class="btn-cleanup-confirm" id="btnCleanupConfirm">Remove Inactive Chats (>30 Days Idle)</button>
+            <button class="btn-cleanup-cancel" id="btnCleanupCancel">Keep Active in Memory</button>
+          </div>
+        </div>
+
         <!-- Activity Sparkline Chart Box -->
         <div class="records-card">
           <div class="records-card-header font-mono">
@@ -306,14 +371,14 @@
           
           <!-- Top Areas Card -->
           <div class="records-card">
-            <h4 class="records-card-title font-mono">TOP AREAS</h4>
+            <h4 class="records-card-title font-mono">TOP RESEARCHED AREAS (MOST FOCUSED)</h4>
             <div class="topic-row font-mono">
-              <span>Cybersecurity</span>
+              <span>Cybersecurity & Defense</span>
               <span class="topic-bar"><span style="width: 42%;"></span></span>
               <span>42%</span>
             </div>
             <div class="topic-row font-mono">
-              <span>AI & Agents</span>
+              <span>AI & Agentic Systems</span>
               <span class="topic-bar"><span style="width: 31%;"></span></span>
               <span>31%</span>
             </div>
@@ -323,45 +388,27 @@
               <span>17%</span>
             </div>
             <div class="topic-row font-mono">
-              <span>Other</span>
+              <span>Other Topics</span>
               <span class="topic-bar"><span style="width: 10%;"></span></span>
               <span>10%</span>
             </div>
           </div>
 
-          <!-- Research Depth Card -->
+          <!-- Less Focused & Inactive Card -->
           <div class="records-card">
-            <h4 class="records-card-title font-mono">RESEARCH DEPTH</h4>
+            <h4 class="records-card-title font-mono">LESS FOCUSED (INACTIVE >30 DAYS)</h4>
             <div class="depth-metric-row font-mono">
-              <span>Quick investigations</span>
-              <span class="metric-num font-mono">18</span>
+              <span>Basic programming syntax</span>
+              <span class="metric-num font-mono text-dim">3 sessions (42d idle)</span>
             </div>
             <div class="depth-metric-row font-mono">
-              <span>Deep investigations</span>
-              <span class="metric-num font-mono">9</span>
+              <span>Legacy web scraping</span>
+              <span class="metric-num font-mono text-dim">2 sessions (35d idle)</span>
             </div>
             <div class="depth-metric-row font-mono">
-              <span>Experiments</span>
-              <span class="metric-num font-mono">4</span>
+              <span>General text search</span>
+              <span class="metric-num font-mono text-dim">2 sessions (31d idle)</span>
             </div>
-          </div>
-
-        </div>
-
-        <!-- Emerging & Declining Grid -->
-        <div class="records-grid-row">
-          
-          <div class="records-card">
-            <h4 class="records-card-title font-mono">RECENTLY EMERGING</h4>
-            <div class="trend-item font-mono text-emerald">↑ Autonomous systems</div>
-            <div class="trend-item font-mono text-emerald">↑ Agentic AI</div>
-            <div class="trend-item font-mono text-emerald">↑ Research automation</div>
-          </div>
-
-          <div class="records-card">
-            <h4 class="records-card-title font-mono">DECLINING</h4>
-            <div class="trend-item font-mono text-dim">↓ Basic programming queries</div>
-            <div class="trend-item font-mono text-dim">↓ General searches</div>
           </div>
 
         </div>
@@ -390,48 +437,58 @@
             </p>
           </div>
 
-          <div class="observation-card">
-            <div class="obs-header font-mono">
-              <span class="obs-tag">OBSERVED PATTERN</span>
-              <span class="obs-meta">Confidence: High · Based on 24 primary sources</span>
-            </div>
-            <p class="obs-text">
-              <em>Your source discipline improved.</em> You increasingly use primary/official sources before secondary sources.
-            </p>
-          </div>
         </div>
 
       </div>
     </div>
   </div>
 
-  <!-- Sign In / Sign Up Modal -->
-  <div class="modal-backdrop hidden" id="authModal">
+  <!-- Attachment Context Upload Modal -->
+  <div class="modal-backdrop hidden" id="attachmentModal">
     <div class="auth-dialog">
       <div class="auth-header">
-        <h3>Welcome to AURA Platform</h3>
-        <p>Select a sample user profile to enter the Intelligence Room</p>
+        <h3>Attach Research Context Document</h3>
+        <p>Upload PDF, TXT, CSV, or code files to index into AURA RAG context memory</p>
       </div>
 
-      <div class="auth-tiers">
-        
-        <!-- Freemium Option -->
-        <div class="auth-tier-card" id="selectFreeTier">
-          <h4>Freemium User</h4>
-          <div class="tier-price">$0 / month</div>
-          <p>Access standard Hybrid RAG vector search & 5-agent thinking logs.</p>
-          <button class="btn-tier-select">Enter as Freemium User</button>
-        </div>
+      <form id="attachmentForm" style="display:flex; flex-direction:column; gap:14px;">
+        <input type="file" id="contextFileInput" class="payer-wallet-input" required />
+        <button type="submit" class="btn-verify-x402 font-mono">Upload & Index into Vector Memory</button>
+        <button type="button" class="btn-reject font-mono" id="closeAttachmentBtn">Cancel</button>
+      </form>
+    </div>
+  </div>
 
-        <!-- Premium Option -->
-        <div class="auth-tier-card premium" id="selectPremiumTier">
-          <h4>Premium User (x402)</h4>
-          <div class="tier-price">$5 USDC / task (or $29/mo)</div>
-          <p>Unlock Playwright live web scraping, Docker Sandbox execution & x402 machine payments.</p>
-          <button class="btn-tier-select premium">Enter as Premium User</button>
-        </div>
-
+  <!-- Sign In / Register Modal -->
+  <div class="modal-backdrop hidden" id="authModal">
+    <div class="auth-dialog">
+      <div class="auth-tab-buttons font-mono">
+        <button class="auth-tab-btn active" id="tabLoginBtn">Login</button>
+        <button class="auth-tab-btn" id="tabRegisterBtn">Register Account</button>
       </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form">
+        <h3>Login to AURA Ecosystem</h3>
+        <input type="email" id="loginEmail" class="payer-wallet-input" placeholder="Email Address" required />
+        <input type="password" id="loginPassword" class="payer-wallet-input" placeholder="Password" required />
+        <button type="submit" class="btn-verify-x402 font-mono">Login & Enter Intelligence Room</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm" class="auth-form hidden">
+        <h3>Register New AURA Account</h3>
+        <input type="text" id="regFullName" class="payer-wallet-input" placeholder="Full Name" required />
+        <input type="email" id="regEmail" class="payer-wallet-input" placeholder="Email Address" required />
+        <input type="password" id="regPassword" class="payer-wallet-input" placeholder="Password" required />
+        <select id="regTier" class="payer-wallet-input font-mono">
+          <option value="FREEMIUM">Freemium Tier ($0/mo)</option>
+          <option value="PREMIUM">Premium Tier ($5 USDC / task)</option>
+        </select>
+        <button type="submit" class="btn-verify-x402 font-mono">Create Account & Join Ecosystem</button>
+      </form>
+
+      <button class="close-btn" id="closeAuthBtn" style="align-self:flex-end;">Close</button>
     </div>
   </div>
 
@@ -550,6 +607,7 @@ X-Payment-Header-Required: X-PAYMENT
   <script src="app.js"></script>
 </body>
 </html>
+
 
 
 

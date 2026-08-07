@@ -97,7 +97,9 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       voiceBtn.addEventListener("click", () => {
         alert("Voice recognition is not supported in this browser environment.");
-  }
+      });
+    }
+
 
   const userDropdownTrigger = document.getElementById("userDropdownTrigger");
   const openSettingsHeaderBtn = document.getElementById("openSettingsHeaderBtn");

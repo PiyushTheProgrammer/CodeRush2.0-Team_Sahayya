@@ -190,17 +190,45 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCleanupCancel = document.getElementById("btnCleanupCancel");
   const inactiveCleanupBanner = document.getElementById("inactiveCleanupBanner");
 
-  // Header Nav & Landing Page Links
-  if (navWhyAuraBtn) {
-    navWhyAuraBtn.addEventListener("click", () => {
-      const sec = document.getElementById("whyAuraSection");
-      if (sec) sec.scrollIntoView({ behavior: "smooth" });
+  const landingPageContainer = document.getElementById("landingPageContainer");
+  const mainAppView = document.getElementById("mainAppView");
+  const landingSignInBtn = document.getElementById("landingSignInBtn");
+  const landingSignUpBtn = document.getElementById("landingSignUpBtn");
+  const landingLaunchAppBtn = document.getElementById("landingLaunchAppBtn");
+  const landingHeroAuthBtn = document.getElementById("landingHeroAuthBtn");
+
+  function showMainWorkspace() {
+    if (landingPageContainer) landingPageContainer.classList.add("hidden");
+    if (mainAppView) mainAppView.classList.remove("hidden");
+  }
+
+  function showLandingPage() {
+    if (landingPageContainer) landingPageContainer.classList.remove("hidden");
+    if (mainAppView) mainAppView.classList.add("hidden");
+  }
+
+  if (landingLaunchAppBtn) {
+    landingLaunchAppBtn.addEventListener("click", showMainWorkspace);
+  }
+
+  if (landingSignInBtn && authModal) {
+    landingSignInBtn.addEventListener("click", () => {
+      showLoginTab();
+      authModal.classList.remove("hidden");
     });
   }
 
-  if (navTryAuraBtn && userPromptInput) {
-    navTryAuraBtn.addEventListener("click", () => {
-      userPromptInput.focus();
+  if (landingSignUpBtn && authModal) {
+    landingSignUpBtn.addEventListener("click", () => {
+      showRegisterTab();
+      authModal.classList.remove("hidden");
+    });
+  }
+
+  if (landingHeroAuthBtn && authModal) {
+    landingHeroAuthBtn.addEventListener("click", () => {
+      showLoginTab();
+      authModal.classList.remove("hidden");
     });
   }
 
@@ -252,11 +280,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await resp.json();
         updateUserProfile(data.full_name, data.email, data.user_tier);
         if (authModal) authModal.classList.add("hidden");
-        alert(`Welcome back, ${data.full_name}! You are logged into AURA.`);
+        showMainWorkspace();
       } catch (err) {
         updateUserProfile(email.split("@")[0], email, "FREEMIUM");
         if (authModal) authModal.classList.add("hidden");
-        alert("Login successful!");
+        showMainWorkspace();
       }
     });
   }
@@ -278,14 +306,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await resp.json();
         updateUserProfile(data.full_name, data.email, data.user_tier);
         if (authModal) authModal.classList.add("hidden");
-        alert(`Account created successfully! Welcome ${data.full_name}.`);
+        showMainWorkspace();
       } catch (err) {
         updateUserProfile(fullName, email, tier);
         if (authModal) authModal.classList.add("hidden");
-        alert("Account registered successfully!");
+        showMainWorkspace();
       }
     });
   }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      updateUserProfile("Guest User", "guest@aura.ai", "FREEMIUM");
+      showLandingPage();
+    });
+  }
+
 
   // Context Attachment Handlers
   if (attachContextBtn && attachmentModal) {

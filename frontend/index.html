@@ -15,310 +15,353 @@
 </head>
 <body class="intelligence-room-theme">
 
-  <!-- Top System Header Bar -->
-  <header class="top-header-bar font-mono">
-    <div class="header-left">
-      <span class="brand-title">AURA <span class="brand-symbol">◌</span></span>
-      <span class="brand-subtitle">Autonomous Research Intelligence</span>
-    </div>
-    <div class="header-right">
-      <button class="header-nav-link" id="navWhyAuraBtn">Why AURA Stands Apart</button>
-      <button class="header-nav-link" id="navTryAuraBtn">Try AURA</button>
-      <span class="live-pill"><span class="pulse-dot"></span> LIVE</span>
-      
-      <div class="header-auth-buttons">
-        <button class="header-btn-login" id="headerLoginBtn">Login</button>
-        <button class="header-btn-register" id="headerRegisterBtn">Register</button>
-      </div>
-
-      <div class="user-dropdown hidden" id="userDropdownTrigger">
-        <span id="headerUserName">Anuj</span> ▾
-      </div>
-      <button class="icon-gear-btn" id="openSettingsHeaderBtn" title="Settings">⚙️</button>
-    </div>
-  </header>
-  
-  <!-- 3-Panel Main Intelligence Room Layout -->
-  <div class="diagram-layout">
+  <!-- ==========================================================================
+       1. LANDING PAGE VIEW (Shown before login or when visiting home)
+       ========================================================================== -->
+  <div id="landingPageContainer" class="landing-page-wrapper">
     
-    <!-- Left Intelligence Sidebar Navigation -->
-    <aside class="sidebar-left">
-      <div class="sidebar-header">
-        <div class="logo-circle">A</div>
-        <h2 class="logo-text">AURA</h2>
+    <!-- Landing Top Navigation Bar -->
+    <header class="landing-header font-mono">
+      <div class="landing-brand">
+        <span class="brand-title">AURA <span class="brand-symbol">◌</span></span>
+        <span class="brand-subtitle">Autonomous Research Intelligence</span>
       </div>
 
-      <nav class="nav-menu">
-        <button class="nav-item active" data-tab="overview">
-          <span class="nav-symbol">◌</span> OVERVIEW
-        </button>
-        <button class="nav-item" data-tab="research">
-          <span class="nav-symbol">✦</span> RESEARCH
-        </button>
-        <button class="nav-item" data-tab="records" id="openRecordsBtn">
-          <span class="nav-symbol">◎</span> YOUR RECORDS
-        </button>
-        <button class="nav-item" data-tab="sources">
-          <span class="nav-symbol">◈</span> SOURCES
-        </button>
-        <button class="nav-item" data-tab="experiments">
-          <span class="nav-symbol">◇</span> EXPERIMENTS
-        </button>
-        <button class="nav-item" data-tab="evolution" id="openEvolutionBtn">
-          <span class="nav-symbol">∿</span> EVOLUTION
-        </button>
-        <button class="nav-item" id="openGovernanceNavBtn">
-          <span class="nav-symbol">🛡️</span> GOVERNANCE
-        </button>
-        <button class="nav-item" data-tab="activity">
-          <span class="nav-symbol">≋</span> ACTIVITY
-        </button>
+      <nav class="landing-nav font-sans">
+        <a href="#landingFeatures" class="landing-link">Features</a>
+        <button class="btn-landing-auth secondary" id="landingSignInBtn">Sign In</button>
+        <button class="btn-landing-auth primary" id="landingSignUpBtn">Sign Up</button>
       </nav>
+    </header>
 
-      <div class="sidebar-footer">
-        <button class="nav-item footer-link" id="footerSettingsBtn">
-          <span class="nav-symbol">⚙️</span> SETTINGS
+    <!-- Landing Hero Banner -->
+    <section class="landing-hero">
+      <h1 class="landing-hero-title">AURA</h1>
+      <p class="landing-hero-subtitle">
+        Autonomous Research Intelligence Ecosystem — 5-Agent LangGraph DAG, AST Governance Gatekeeper & x402 Machine Payment Standard
+      </p>
+
+      <div class="landing-hero-actions font-mono">
+        <button class="btn-hero-launch" id="landingLaunchAppBtn">
+          Launch Intelligence Room ↗
         </button>
-        <button class="nav-item footer-link logout" id="logoutBtn">
-          <span class="nav-symbol">↪️</span> SIGN OUT
+        <button class="btn-hero-auth" id="landingHeroAuthBtn">
+          Sign In / Sign Up
         </button>
-        <div class="system-status font-mono">
-          <span class="pulse-dot"></span> System Standby
-        </div>
       </div>
-    </aside>
+    </section>
 
-    <!-- Center Workspace (Intelligence Core) -->
-    <main class="workspace-center">
+    <!-- Landing Ecosystem Features Grid -->
+    <section class="landing-features-section" id="landingFeatures">
+      <h2 class="landing-section-title font-mono">ECOSYSTEM FEATURES</h2>
       
-      <!-- AURA CORE Section -->
-      <div class="aura-core-section">
+      <div class="landing-features-grid">
         
-        <!-- AURA Dynamic Intelligence Orb -->
-        <div class="orb-container">
-          <div class="aura-orb state-idle" id="auraOrb" title="AURA Intelligence Orb">
-            <svg viewBox="0 0 100 100" class="orb-svg">
-              <circle cx="50" cy="50" r="44" class="orb-outer-ring" />
-              <circle cx="50" cy="50" r="40" class="orb-body" />
-              
-              <!-- 3 Internal Circular Portals (◌ ◌ ◌) -->
-              <circle cx="40" cy="38" r="5.5" class="orb-hole hole-1" />
-              <circle cx="62" cy="42" r="5.5" class="orb-hole hole-2" />
-              <circle cx="48" cy="64" r="5.5" class="orb-hole hole-3" />
-              
-              <!-- Orbiting data particles -->
-              <circle cx="50" cy="15" r="2.5" class="orb-particle p-1" />
-              <circle cx="85" cy="50" r="2.5" class="orb-particle p-2" />
-              <circle cx="50" cy="85" r="2.5" class="orb-particle p-3" />
-            </svg>
-          </div>
-
-          <div class="orb-meta">
-            <div class="orb-state-label font-mono" id="orbStateLabel">AURA State: Idle (Soft Breathing)</div>
-            <div class="live-activity-indicator font-mono">
-              <span class="blink-light"></span> Live Intelligence Stream
-            </div>
-          </div>
+        <div class="feature-card">
+          <div class="feature-icon font-mono">01</div>
+          <h3 class="feature-title">5-Agent LangGraph DAG Engine</h3>
+          <p class="feature-desc">Orchestrates Planner, Sandbox Executor, Live RAG Evidence, Critic Evolution, and AST Governance Gatekeeper agents synchronously.</p>
         </div>
 
-        <!-- Intelligence Core Hero Title -->
-        <div class="center-hero" id="heroPrompt">
-          <h2>What would you like to understand?</h2>
+        <div class="feature-card">
+          <div class="feature-icon font-mono">02</div>
+          <h3 class="feature-title">AST Governance Safety Gatekeeper</h3>
+          <p class="feature-desc">Parses self-evolving Python code patches using AST syntax trees to block malicious imports (os, sys, subprocess) and auto-rollback invalid patches.</p>
         </div>
 
-        <!-- Input Box (Asking AURA) -->
-        <div class="input-section">
-          <form id="researchForm" class="diagram-input-box">
-            <input 
-              type="text" 
-              id="userPrompt" 
-              placeholder="Ask AURA anything..." 
-              autocomplete="off"
-              required
-            />
-            
-            <div class="input-actions font-mono">
-              <button type="button" class="icon-input-btn" id="voiceBtn" title="Voice Research Query (Microphone)">
-                🎙️
-              </button>
-              <button type="button" class="icon-input-btn" id="attachContextBtn" title="Attach Research Context File">
-                📎
-              </button>
-              <button type="submit" id="submitBtn" class="send-icon-btn" title="Submit Research Task">
-                ↑
-              </button>
-            </div>
-          </form>
+        <div class="feature-card">
+          <div class="feature-icon font-mono">03</div>
+          <h3 class="feature-title">x402 Agentic Payment Protocol</h3>
+          <p class="feature-desc">Enables autonomous machine-to-machine crypto/stablecoin payments (USDC, ETH, SOL) with sender wallet verification headers.</p>
+        </div>
 
-          <!-- Voice Recording Indicator -->
-          <div class="voice-status-indicator hidden font-mono" id="voiceStatus">
-            <span class="blink-light pulse-red"></span> AURA Listening... Speak your research query.
-          </div>
+        <div class="feature-card">
+          <div class="feature-icon font-mono">04</div>
+          <h3 class="feature-title">Self-Evolving RAG Vector Memory</h3>
+          <p class="feature-desc">Evaluates candidate RAG ranking algorithms against held-out benchmarks, measuring precision gain (+14.2%) and longitudinal performance.</p>
+        </div>
 
-          <!-- Suggested Directions -->
-          <div class="suggested-directions-container font-mono">
-            <span class="suggested-label">Suggested directions</span>
-            <div class="prompt-chips-container">
-              <button class="prompt-chip" data-prompt="Investigate why urban emergency response times are increasing">
-                Research a topic
-              </button>
-              <span class="dot-sep">·</span>
-              <button class="prompt-chip" data-prompt="Compare PostgreSQL pgvector HNSW vs Pinecone vector search">
-                Compare evidence
-              </button>
-              <span class="dot-sep">·</span>
-              <button class="prompt-chip" data-prompt="Investigate global autonomous vehicle safety benchmarks and trends">
-                Investigate trend
-              </button>
-              <span class="dot-sep">·</span>
-              <button class="prompt-chip" data-prompt="Run sandbox experiment on Reciprocal Rank Fusion k=60 hybrid retrieval">
-                Run experiment
-              </button>
-            </div>
-          </div>
+        <div class="feature-card">
+          <div class="feature-icon font-mono">05</div>
+          <h3 class="feature-title">Voice Assistant & Context Attachments</h3>
+          <p class="feature-desc">Transcribes spoken microphone queries, synthesizes audio answers (TTS), and indexes PDF, TXT, CSV, and code context attachments.</p>
+        </div>
 
-          <div class="execution-toggles font-mono">
-            <label class="toggle-pill active">
-              <input type="checkbox" checked id="toggleSelfEvolve" />
-              <span class="toggle-dot"></span> Self-Evolve Mode
-            </label>
-            <label class="toggle-pill active">
-              <input type="checkbox" checked id="toggleWebScrape" />
-              <span class="toggle-dot"></span> Real-Time Web Scraping
-            </label>
-            <label class="toggle-pill active">
-              <input type="checkbox" checked id="toggleEntailment" />
-              <span class="toggle-dot"></span> Claim Verification Guard
-            </label>
-          </div>
+        <div class="feature-card">
+          <div class="feature-icon font-mono">06</div>
+          <h3 class="feature-title">Automated Inactive Memory Cleanup (>30 Days)</h3>
+          <p class="feature-desc">Monitors user topic depth and sends memory cleanup notifications for research topics idle for over 30 days to keep research memory optimized.</p>
         </div>
 
       </div>
+    </section>
 
-      <!-- WHY AURA STANDS APART (Image Flow Comparison Section) -->
-      <section class="why-aura-section" id="whyAuraSection">
-        <h3 class="why-aura-title font-mono">WHY AURA STANDS APART</h3>
-        
-        <div class="comparison-flow-grid">
-          
-          <!-- TRADITIONAL AI FLOW -->
-          <div class="flow-column traditional-flow font-mono">
-            <div class="flow-column-header">TRADITIONAL AI</div>
-            
-            <div class="flow-node">QUESTION</div>
-            <div class="flow-arrow">│<br>▼</div>
-            <div class="flow-node">RESPONSE</div>
-            <div class="flow-arrow">│<br>▼</div>
-            <div class="flow-node">ANSWER</div>
-          </div>
-
-          <div class="flow-divider-line"></div>
-
-          <!-- AURA AUTONOMOUS INTELLIGENCE FLOW -->
-          <div class="flow-column aura-flow font-mono">
-            <div class="flow-column-header text-cyan">AURA INTELLIGENCE</div>
-            
-            <div class="flow-node active-node">GOAL</div>
-            <div class="flow-arrow">│<br>▼</div>
-            <div class="flow-node active-node">PLAN</div>
-            <div class="flow-arrow">│<br>▼</div>
-            <div class="flow-node active-node">LIVE RESEARCH</div>
-            <div class="flow-arrow">│<br>▼</div>
-            <div class="flow-node active-node">EVIDENCE</div>
-            <div class="flow-arrow">│<br>▼</div>
-            <div class="flow-node active-node">EXPERIMENT</div>
-            <div class="flow-arrow">│<br>▼</div>
-            <div class="flow-node active-node">EVALUATE</div>
-            <div class="flow-arrow">│<br>▼</div>
-            <div class="flow-node active-node">GOVERN + EVOLVE</div>
-            <div class="flow-arrow">│<br>▼</div>
-            <div class="flow-node active-node">RESEARCH MEMORY</div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- Main Chat / Output Stream & Source Panel (Appears dynamically upon research task) -->
-      <div class="output-stream-container" id="outputStreamContainer">
-        <div class="feed-list" id="resultsFeed"></div>
-      </div>
-
-    </main>
-
-    <!-- Right Sidebar Profile & Live Metrics Panel -->
-    <aside class="sidebar-right">
-      
-      <!-- Top Profile / User Box -->
-      <div class="profile-box">
-        <div class="user-info">
-          <div class="avatar">A</div>
-          <div>
-            <div class="user-name" id="profileUserName">Anuj</div>
-            <div class="user-tier-badge font-mono" id="profileUserTier">FREEMIUM TIER</div>
-          </div>
-        </div>
-
-        <div class="profile-menu">
-          <button class="profile-link" id="openAuthBtn">Sign In</button>
-          <button class="profile-link upgrade-link" id="openPricingBtn">x402 Pricing</button>
-        </div>
-      </div>
-
-      <!-- Metrics Panel -->
-      <div class="metrics-panel">
-        <h3 class="panel-heading font-mono">CURRENT INTELLIGENCE</h3>
-
-        <!-- Intelligence Step Pipeline Indicator -->
-        <div class="intelligence-pipeline-card font-mono">
-          <div class="pipe-step active">Planning</div>
-          <div class="pipe-arrow">───</div>
-          <div class="pipe-step">Searching</div>
-          <div class="pipe-arrow">───</div>
-          <div class="pipe-step">Verifying</div>
-          <div class="pipe-arrow">───</div>
-          <div class="pipe-step">Ready</div>
-        </div>
-
-        <div class="metric-row font-mono">
-          <span class="metric-label">AURA Think</span>
-          <span class="metric-val" id="metricThink">Active (OpenAI)</span>
-        </div>
-
-        <div class="metric-row font-mono">
-          <span class="metric-label">Evolution</span>
-          <span class="metric-val text-cyan" id="metricEvolution">+14.2% Precision Gain (v1.0.4)</span>
-        </div>
-
-        <div class="metric-row font-mono">
-          <span class="metric-label">Evaluation</span>
-          <span class="metric-val" id="metricEvaluation">Gemini 1.5 Flash</span>
-        </div>
-
-        <div class="metric-row font-mono">
-          <span class="metric-label">x402 Protocol</span>
-          <span class="metric-val status-ok" id="metricX402">HTTP 402 Ready</span>
-        </div>
-
-        <div class="metric-row font-mono">
-          <span class="metric-label">Accuracy</span>
-          <span class="metric-val" id="metricAccuracy">96.4% Entailment</span>
-        </div>
-
-        <div class="langgraph-card font-mono">
-          <div class="lg-title">LangGraph 5-Agent DAG</div>
-          <div class="lg-step">1. Planner Agent</div>
-          <div class="lg-step">2. Sandbox Executor</div>
-          <div class="lg-step">3. Live RAG Evidence</div>
-          <div class="lg-step">4. Critic Evolution</div>
-          <div class="lg-step">5. Governance Gatekeeper</div>
-        </div>
-      </div>
-
-    </aside>
+    <footer class="landing-footer font-mono">
+      <span>© 2026 AURA Autonomous Research Ecosystem</span>
+    </footer>
 
   </div>
 
-  <!-- YOUR RECORDS Drawer / Modal (Patterns AURA has observed over time) -->
+  <!-- ==========================================================================
+       2. MAIN INTELLIGENCE WORKSPACE VIEW (Shown after login or clicking Launch)
+       ========================================================================== -->
+  <div id="mainAppView" class="main-app-wrapper hidden">
+    
+    <!-- Top System Header Bar -->
+    <header class="top-header-bar font-mono">
+      <div class="header-left">
+        <span class="brand-title">AURA <span class="brand-symbol">◌</span></span>
+        <span class="brand-subtitle">Autonomous Research Intelligence</span>
+      </div>
+      <div class="header-right">
+        <span class="live-pill"><span class="pulse-dot"></span> LIVE</span>
+        
+        <div class="user-dropdown" id="userDropdownTrigger">
+          <span id="headerUserName">Anuj</span> ▾
+        </div>
+        <button class="icon-gear-btn" id="openSettingsHeaderBtn" title="Settings">⚙️</button>
+      </div>
+    </header>
+    
+    <!-- 3-Panel Main Intelligence Room Layout -->
+    <div class="diagram-layout">
+      
+      <!-- Left Intelligence Sidebar Navigation -->
+      <aside class="sidebar-left">
+        <div class="sidebar-header">
+          <div class="logo-circle">A</div>
+          <h2 class="logo-text">AURA</h2>
+        </div>
+
+        <nav class="nav-menu">
+          <button class="nav-item active" data-tab="overview">
+            <span class="nav-symbol">◌</span> OVERVIEW
+          </button>
+          <button class="nav-item" data-tab="research">
+            <span class="nav-symbol">✦</span> RESEARCH
+          </button>
+          <button class="nav-item" data-tab="records" id="openRecordsBtn">
+            <span class="nav-symbol">◎</span> YOUR RECORDS
+          </button>
+          <button class="nav-item" data-tab="sources">
+            <span class="nav-symbol">◈</span> SOURCES
+          </button>
+          <button class="nav-item" data-tab="experiments">
+            <span class="nav-symbol">◇</span> EXPERIMENTS
+          </button>
+          <button class="nav-item" data-tab="evolution" id="openEvolutionBtn">
+            <span class="nav-symbol">∿</span> EVOLUTION
+          </button>
+          <button class="nav-item" id="openGovernanceNavBtn">
+            <span class="nav-symbol">🛡️</span> GOVERNANCE
+          </button>
+          <button class="nav-item" data-tab="activity">
+            <span class="nav-symbol">≋</span> ACTIVITY
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="nav-item footer-link" id="footerSettingsBtn">
+            <span class="nav-symbol">⚙️</span> SETTINGS
+          </button>
+          <button class="nav-item footer-link logout" id="logoutBtn">
+            <span class="nav-symbol">↪️</span> SIGN OUT
+          </button>
+          <div class="system-status font-mono">
+            <span class="pulse-dot"></span> System Standby
+          </div>
+        </div>
+      </aside>
+
+      <!-- Center Workspace (Intelligence Core) -->
+      <main class="workspace-center">
+        
+        <!-- AURA CORE Section -->
+        <div class="aura-core-section">
+          
+          <!-- AURA Dynamic Intelligence Orb -->
+          <div class="orb-container">
+            <div class="aura-orb state-idle" id="auraOrb" title="AURA Intelligence Orb">
+              <svg viewBox="0 0 100 100" class="orb-svg">
+                <circle cx="50" cy="50" r="44" class="orb-outer-ring" />
+                <circle cx="50" cy="50" r="40" class="orb-body" />
+                
+                <!-- 3 Internal Circular Portals (◌ ◌ ◌) -->
+                <circle cx="40" cy="38" r="5.5" class="orb-hole hole-1" />
+                <circle cx="62" cy="42" r="5.5" class="orb-hole hole-2" />
+                <circle cx="48" cy="64" r="5.5" class="orb-hole hole-3" />
+                
+                <!-- Orbiting data particles -->
+                <circle cx="50" cy="15" r="2.5" class="orb-particle p-1" />
+                <circle cx="85" cy="50" r="2.5" class="orb-particle p-2" />
+                <circle cx="50" cy="85" r="2.5" class="orb-particle p-3" />
+              </svg>
+            </div>
+
+            <div class="orb-meta">
+              <div class="orb-state-label font-mono" id="orbStateLabel">AURA State: Idle (Soft Breathing)</div>
+              <div class="live-activity-indicator font-mono">
+                <span class="blink-light"></span> Live Intelligence Stream
+              </div>
+            </div>
+          </div>
+
+          <!-- Intelligence Core Hero Title -->
+          <div class="center-hero" id="heroPrompt">
+            <h2>What would you like to understand?</h2>
+          </div>
+
+          <!-- Input Box (Asking AURA) -->
+          <div class="input-section">
+            <form id="researchForm" class="diagram-input-box">
+              <input 
+                type="text" 
+                id="userPrompt" 
+                placeholder="Ask AURA anything..." 
+                autocomplete="off"
+                required
+              />
+              
+              <div class="input-actions font-mono">
+                <button type="button" class="icon-input-btn" id="voiceBtn" title="Voice Research Query (Microphone)">
+                  🎙️
+                </button>
+                <button type="button" class="icon-input-btn" id="attachContextBtn" title="Attach Research Context File">
+                  📎
+                </button>
+                <button type="submit" id="submitBtn" class="send-icon-btn" title="Submit Research Task">
+                  ↑
+                </button>
+              </div>
+            </form>
+
+            <!-- Voice Recording Indicator -->
+            <div class="voice-status-indicator hidden font-mono" id="voiceStatus">
+              <span class="blink-light pulse-red"></span> AURA Listening... Speak your research query.
+            </div>
+
+            <!-- Suggested Directions -->
+            <div class="suggested-directions-container font-mono">
+              <span class="suggested-label">Suggested directions</span>
+              <div class="prompt-chips-container">
+                <button class="prompt-chip" data-prompt="Investigate why urban emergency response times are increasing">
+                  Research a topic
+                </button>
+                <span class="dot-sep">·</span>
+                <button class="prompt-chip" data-prompt="Compare PostgreSQL pgvector HNSW vs Pinecone vector search">
+                  Compare evidence
+                </button>
+                <span class="dot-sep">·</span>
+                <button class="prompt-chip" data-prompt="Investigate global autonomous vehicle safety benchmarks and trends">
+                  Investigate trend
+                </button>
+                <span class="dot-sep">·</span>
+                <button class="prompt-chip" data-prompt="Run sandbox experiment on Reciprocal Rank Fusion k=60 hybrid retrieval">
+                  Run experiment
+                </button>
+              </div>
+            </div>
+
+            <div class="execution-toggles font-mono">
+              <label class="toggle-pill active">
+                <input type="checkbox" checked id="toggleSelfEvolve" />
+                <span class="toggle-dot"></span> Self-Evolve Mode
+              </label>
+              <label class="toggle-pill active">
+                <input type="checkbox" checked id="toggleWebScrape" />
+                <span class="toggle-dot"></span> Real-Time Web Scraping
+              </label>
+              <label class="toggle-pill active">
+                <input type="checkbox" checked id="toggleEntailment" />
+                <span class="toggle-dot"></span> Claim Verification Guard
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Main Chat / Output Stream & Source Panel (Appears dynamically upon research task) -->
+        <div class="output-stream-container" id="outputStreamContainer">
+          <div class="feed-list" id="resultsFeed"></div>
+        </div>
+
+      </main>
+
+      <!-- Right Sidebar Profile & Live Metrics Panel -->
+      <aside class="sidebar-right">
+        
+        <!-- Top Profile / User Box -->
+        <div class="profile-box">
+          <div class="user-info">
+            <div class="avatar">A</div>
+            <div>
+              <div class="user-name" id="profileUserName">Anuj</div>
+              <div class="user-tier-badge font-mono" id="profileUserTier">FREEMIUM TIER</div>
+            </div>
+          </div>
+
+          <div class="profile-menu">
+            <button class="profile-link" id="openAuthBtn">Sign In</button>
+            <button class="profile-link upgrade-link" id="openPricingBtn">x402 Pricing</button>
+          </div>
+        </div>
+
+        <!-- Metrics Panel -->
+        <div class="metrics-panel">
+          <h3 class="panel-heading font-mono">CURRENT INTELLIGENCE</h3>
+
+          <!-- Intelligence Step Pipeline Indicator -->
+          <div class="intelligence-pipeline-card font-mono">
+            <div class="pipe-step active">Planning</div>
+            <div class="pipe-arrow">───</div>
+            <div class="pipe-step">Searching</div>
+            <div class="pipe-arrow">───</div>
+            <div class="pipe-step">Verifying</div>
+            <div class="pipe-arrow">───</div>
+            <div class="pipe-step">Ready</div>
+          </div>
+
+          <div class="metric-row font-mono">
+            <span class="metric-label">AURA Think</span>
+            <span class="metric-val" id="metricThink">Active (OpenAI)</span>
+          </div>
+
+          <div class="metric-row font-mono">
+            <span class="metric-label">Evolution</span>
+            <span class="metric-val text-cyan" id="metricEvolution">+14.2% Precision Gain (v1.0.4)</span>
+          </div>
+
+          <div class="metric-row font-mono">
+            <span class="metric-label">Evaluation</span>
+            <span class="metric-val" id="metricEvaluation">Gemini 1.5 Flash</span>
+          </div>
+
+          <div class="metric-row font-mono">
+            <span class="metric-label">x402 Protocol</span>
+            <span class="metric-val status-ok" id="metricX402">HTTP 402 Ready</span>
+          </div>
+
+          <div class="metric-row font-mono">
+            <span class="metric-label">Accuracy</span>
+            <span class="metric-val" id="metricAccuracy">96.4% Entailment</span>
+          </div>
+
+          <div class="langgraph-card font-mono">
+            <div class="lg-title">LangGraph 5-Agent DAG</div>
+            <div class="lg-step">1. Planner Agent</div>
+            <div class="lg-step">2. Sandbox Executor</div>
+            <div class="lg-step">3. Live RAG Evidence</div>
+            <div class="lg-step">4. Critic Evolution</div>
+            <div class="lg-step">5. Governance Gatekeeper</div>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- YOUR RECORDS Drawer / Modal (Patterns & Inactive Memory) -->
   <div class="modal-backdrop hidden" id="recordsModal">
     <div class="records-dialog">
       <div class="records-header">
@@ -463,21 +506,21 @@
   <div class="modal-backdrop hidden" id="authModal">
     <div class="auth-dialog">
       <div class="auth-tab-buttons font-mono">
-        <button class="auth-tab-btn active" id="tabLoginBtn">Login</button>
-        <button class="auth-tab-btn" id="tabRegisterBtn">Register Account</button>
+        <button class="auth-tab-btn active" id="tabLoginBtn">Sign In</button>
+        <button class="auth-tab-btn" id="tabRegisterBtn">Sign Up Account</button>
       </div>
 
       <!-- Login Form -->
       <form id="loginForm" class="auth-form">
-        <h3>Login to AURA Ecosystem</h3>
+        <h3>Sign In to AURA Ecosystem</h3>
         <input type="email" id="loginEmail" class="payer-wallet-input" placeholder="Email Address" required />
         <input type="password" id="loginPassword" class="payer-wallet-input" placeholder="Password" required />
-        <button type="submit" class="btn-verify-x402 font-mono">Login & Enter Intelligence Room</button>
+        <button type="submit" class="btn-verify-x402 font-mono">Sign In & Enter Intelligence Room</button>
       </form>
 
       <!-- Register Form -->
       <form id="registerForm" class="auth-form hidden">
-        <h3>Register New AURA Account</h3>
+        <h3>Sign Up New AURA Account</h3>
         <input type="text" id="regFullName" class="payer-wallet-input" placeholder="Full Name" required />
         <input type="email" id="regEmail" class="payer-wallet-input" placeholder="Email Address" required />
         <input type="password" id="regPassword" class="payer-wallet-input" placeholder="Password" required />
@@ -607,7 +650,3 @@ X-Payment-Header-Required: X-PAYMENT
   <script src="app.js"></script>
 </body>
 </html>
-
-
-
-

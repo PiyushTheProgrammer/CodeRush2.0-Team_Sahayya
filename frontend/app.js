@@ -756,12 +756,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     html = parsedLines.join("\n");
 
-    // Headings
-    html = html.replace(/### \*\*(.*?)\*\*/g, '<h3 class="section-heading">$1</h3>');
-    html = html.replace(/### (.*?)\n/g, '<h3 class="section-heading">$1</h3>\n');
+    // Headings (### **Header**, ### Header, ## Header)
+    html = html.replace(/^### \*\*(.*?)\*\*/gm, '<h3 class="section-heading">$1</h3>');
+    html = html.replace(/^### (.*?)$/gm, '<h3 class="section-heading">$1</h3>');
+    html = html.replace(/^## (.*?)$/gm, '<h2 class="section-heading">$1</h2>');
 
     // Bold text
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--text-white); font-weight:700;">$1</strong>');
 
     // Hyperlinks [Anchor Text](URL)
     html = html.replace(
@@ -769,11 +770,24 @@ document.addEventListener("DOMContentLoaded", () => {
       '<a href="$2" target="_blank" rel="noopener noreferrer" class="reference-link">$1 ↗</a>'
     );
 
-    // Bullet items
-    html = html.replace(/^- (.*?)$/gm, '<div class="bullet-item">• $1</div>');
+    // Numbered findings (1. Verified Web Fact: ... 2. Verified Web Fact: ...)
+    html = html.replace(/(\d+)\.\s+\*\*Verified Web Fact\*\*:/g, '<div class="bullet-item" style="margin-top:10px;"><strong style="color:var(--accent-cyan);">Verified Web Evidence #$1:</strong>');
+
+    // Bullet items (* item or - item)
+    html = html.replace(/^[\*\-] (.*?)$/gm, '<div class="bullet-item" style="margin-bottom:8px; padding-left:14px; border-left:2px solid var(--border-light);"><span style="color:var(--accent-cyan); font-weight:bold; margin-right:6px;">•</span> $1</div>');
+
+    // Paragraph blocks for double linebreaks
+    const paragraphs = html.split(/\n{2,}/);
+    html = paragraphs.map(p => {
+      p = p.trim();
+      if (!p) return "";
+      if (p.startsWith('<h') || p.startsWith('<div') || p.startsWith('<table')) return p;
+      return `<p style="margin-bottom:14px; line-height:1.75; color:var(--text-light); font-size:14.5px;">${p}</p>`;
+    }).join('\n');
 
     return html;
   }
+
 
   function renderResults(prompt, data) {
     setOrbState("experimenting");

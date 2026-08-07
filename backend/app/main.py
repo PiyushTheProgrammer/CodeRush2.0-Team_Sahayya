@@ -7,9 +7,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from sqlalchemy import text
 
+from app.api.v1.api import api_router
 from app.core.config import settings
 from app.db.init_pgvector import init_pgvector
 from app.db.session import engine
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -42,6 +44,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(api_router, prefix=settings.API_V1_STR)
+
 
 @app.get("/health", tags=["Health"])
 async def health_check():
@@ -72,7 +76,7 @@ async def health_check():
     }
 
 
-# Mount frontend static directory if present
+# Mount frontend static directory and handle static CSS/JS routes
 frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend"))
 if os.path.exists(frontend_path):
     app.mount("/static", StaticFiles(directory=frontend_path), name="static")
@@ -81,3 +85,10 @@ if os.path.exists(frontend_path):
     async def serve_frontend():
         return FileResponse(os.path.join(frontend_path, "index.html"))
 
+    @app.get("/styles.css", include_in_schema=False)
+    async def serve_css():
+        return FileResponse(os.path.join(frontend_path, "styles.css"))
+
+    @app.get("/app.js", include_in_schema=False)
+    async def serve_js():
+        return FileResponse(os.path.join(frontend_path, "app.js"))

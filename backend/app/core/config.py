@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "AURA - AE-02 Autonomous Research Agent"
+    PROJECT_NAME: str = "AURA - Autonomous Unified Research Agent"
     VERSION: str = "0.1.0"
     API_V1_STR: str = "/api/v1"
 

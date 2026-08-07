@@ -3,188 +3,148 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AURA — Autonomous Research Agent (AE-02)</title>
-  <meta name="description" content="AURA: Self-evolving autonomous research agent powered by Supabase, pgvector, and multi-agent claim verification.">
+  <title>AURA - Autonomous Unified Research Agent</title>
+  <meta name="description" content="AURA - Autonomous Unified Research Agent with PgVector Cosine Search & Dual Embedding Provider Fallback">
   
-  <!-- Modern Typography (Inter Font) -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <!-- Header / Navigation -->
-  <header class="app-header">
-    <div class="header-container">
-      <div class="brand-block">
-        <div class="brand-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-          </svg>
-        </div>
-        <div class="brand-text">
-          <span class="brand-name">AURA</span>
-          <span class="brand-badge">AE-02 Research Agent</span>
-        </div>
+<body class="dark-theme">
+  
+  <!-- App Container -->
+  <div class="app-layout">
+    
+    <!-- Header -->
+    <header class="top-nav">
+      <div class="nav-brand">
+        <div class="brand-sparkle">✦</div>
+        <h1 class="brand-title">AURA - Autonomous Unified Research Agent</h1>
       </div>
 
-      <div class="header-center">
-        <div class="strategy-badge" id="strategyBadge">
-          <span class="pulse-dot"></span>
-          <span>Strategy: <strong>v1.0.4 (Approved)</strong></span>
+      <div class="nav-right">
+        <div class="status-pill" id="dbStatus">
+          <span class="status-dot online"></span>
+          <span class="status-text">PgVector Connected</span>
         </div>
-      </div>
 
-      <div class="header-actions">
-        <div class="status-pill" id="backendStatusPill">
-          <span class="status-indicator loading"></span>
-          <span id="backendStatusText">Connecting API...</span>
-        </div>
-        <a href="https://github.com/PiyushTheProgrammer/CodeRush2.0-Team_Sahayya" target="_blank" class="btn-github">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-          </svg>
-          Repository
-        </a>
+        <button class="drawer-btn" id="openDrawerBtn">
+          <span>🛡️ Governance & Audits</span>
+          <span class="badge" id="pendingClaimBadge">1</span>
+        </button>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- Main Container -->
-  <main class="main-layout">
-    <!-- Top Control / Query Panel -->
-    <section class="query-section">
-      <div class="query-card">
-        <div class="query-header">
-          <h2>Autonomous Research Task Console</h2>
-          <p class="subtitle">Enter a research query to initiate pgvector passage retrieval, claim triangulation, and audit log generation.</p>
-        </div>
+    <!-- Main Workspace (ChatGPT / Gemini Stream) -->
+    <main class="chat-workspace">
+      
+      <!-- Welcome Hero / Feed Container -->
+      <div class="stream-container" id="streamContainer">
         
-        <form id="researchForm" class="query-form">
-          <div class="input-wrapper">
+        <div class="hero-box" id="heroBox">
+          <div class="hero-icon">✨</div>
+          <h2>What would you like to research today?</h2>
+          <p>AURA combines BM25 keyword frequency with Supabase pgvector cosine search, dual-provider embeddings (OpenAI & Gemini), Reciprocal Rank Fusion (RRF), and Time-Aware Decay ranking.</p>
+
+          <div class="prompt-suggestions">
+            <button class="suggestion-chip" onclick="fillPrompt('Analyze Supabase pgvector performance with NullPool connection pooling under high concurrent loads.')">
+              ⚡ Supabase PgVector Performance
+            </button>
+            <button class="suggestion-chip" onclick="fillPrompt('Evaluate Reciprocal Rank Fusion (RRF) accuracy against dense vector cosine search.')">
+              🧠 RRF Hybrid Ranking Math
+            </button>
+            <button class="suggestion-chip" onclick="fillPrompt('Verify Docker sandbox isolation resource limits for non-root Python execution.')">
+              🔒 Docker Sandbox Security
+            </button>
+          </div>
+        </div>
+
+        <!-- Research Stream Results populated dynamically -->
+        <div class="results-feed hidden" id="resultsFeed"></div>
+
+      </div>
+
+      <!-- Bottom Floating Input Console (ChatGPT / Gemini Style) -->
+      <div class="bottom-input-bar">
+        <form id="researchForm" class="input-form">
+          
+          <div class="textarea-wrapper">
             <textarea 
               id="userPrompt" 
-              name="user_prompt" 
-              rows="3" 
-              placeholder="e.g., Analyze the legal and architectural compliance of hybrid RAG vector embeddings using 1536-dim OpenAI text-embedding-3-small on PostgreSQL pgvector..."
+              rows="2" 
+              placeholder="Ask AURA to research anything..." 
               required
             ></textarea>
           </div>
 
-          <div class="query-toolbar">
-            <div class="mode-toggles">
-              <label class="toggle-chip active">
-                <input type="checkbox" checked id="hybridSearchToggle">
-                <span class="chip-icon">⚡</span>
-                Hybrid Search (BM25 + Vector 1536d)
+          <div class="input-controls">
+            
+            <div class="control-pills">
+              <label class="pill-option active">
+                <input type="checkbox" id="hybridToggle" checked>
+                <span>⚡ Hybrid RRF</span>
               </label>
 
-              <label class="toggle-chip active">
-                <input type="checkbox" checked id="selfEvolveToggle">
-                <span class="chip-icon">🧠</span>
-                Self-Evolving Agent Strategy
+              <label class="pill-option active">
+                <input type="checkbox" id="claimGuardToggle" checked>
+                <span>🛡️ Claim Guard</span>
               </label>
 
-              <label class="toggle-chip active">
-                <input type="checkbox" checked id="claimVerificationToggle">
-                <span class="chip-icon">🛡️</span>
-                Claim Entailment Verification
-              </label>
-            </div>
-
-            <div class="action-group">
-              <div class="k-selector">
-                <label for="topK">Top K Passages:</label>
-                <select id="topK">
-                  <option value="5" selected>5 Passages</option>
-                  <option value="10">10 Passages</option>
-                  <option value="20">20 Passages</option>
-                </select>
+              <div class="k-slider-box">
+                <span class="slider-label">Top-K: <strong id="topKVal">5</strong></span>
+                <input type="range" id="topKSlider" min="1" max="20" value="5">
               </div>
-
-              <button type="submit" id="submitBtn" class="btn-primary">
-                <span class="btn-text">Execute Research Task</span>
-                <span class="spinner hidden" id="btnSpinner"></span>
-              </button>
             </div>
+
+            <button type="submit" id="submitBtn" class="send-btn">
+              <span id="sendIcon">➔</span>
+              <span id="spinnerIcon" class="spinner hidden"></span>
+            </button>
+
           </div>
         </form>
+        
+        <div class="disclaimer-text">
+          AURA - Autonomous Unified Research Agent • PgVector Cosine Search • OpenAI & Gemini Fallback
+        </div>
       </div>
-    </section>
 
-    <!-- Workspace Columns -->
-    <div class="workspace-grid">
+    </main>
+
+  </div>
+
+  <!-- Governance & Audit Log Slide-over Drawer -->
+  <div class="drawer-backdrop hidden" id="drawerBackdrop">
+    <aside class="slide-drawer">
       
-      <!-- Column 1: Document Passages -->
-      <section class="grid-column">
-        <div class="column-header">
-          <div class="column-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-              <polyline points="10 9 9 9 8 9"></polyline>
-            </svg>
-            <h3>Discovered Passages</h3>
-          </div>
-          <span class="badge count-badge" id="passageCountBadge">6 Items</span>
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <h3>Governance & Audit Stream</h3>
+          <p>Human-in-the-loop strategy approval & Supabase audit logs</p>
         </div>
-
-        <div class="column-content" id="passagesList">
-          <!-- Passages populated dynamically -->
-        </div>
-      </section>
-
-      <!-- Column 2: Claim Verification Graph -->
-      <section class="grid-column">
-        <div class="column-header">
-          <div class="column-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-            </svg>
-            <h3>Claims & Evidence Links</h3>
-          </div>
-          <span class="badge count-badge" id="claimCountBadge">3 Claims</span>
-        </div>
-
-        <div class="column-content" id="claimsList">
-          <!-- Claims populated dynamically -->
-        </div>
-      </section>
-
-      <!-- Column 3: Real-Time Audit Log & Agent Stream -->
-      <section class="grid-column">
-        <div class="column-header">
-          <div class="column-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-            </svg>
-            <h3>Agent Audit Log Stream</h3>
-          </div>
-          <span class="badge live-badge">Live Monitor</span>
-        </div>
-
-        <div class="column-content" id="auditLogStream">
-          <!-- Audit logs populated dynamically -->
-        </div>
-      </section>
-
-    </div>
-  </main>
-
-  <!-- Detail Modal for Audit Logs & Passages -->
-  <div class="modal-backdrop hidden" id="detailModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 id="modalTitle">Audit Log Details</h3>
-        <button class="btn-close" id="closeModalBtn">&times;</button>
+        <button class="close-btn" id="closeDrawerBtn">&times;</button>
       </div>
-      <div class="modal-body">
-        <pre id="modalJsonContent"><code></code></pre>
+
+      <div class="drawer-content">
+        
+        <!-- Claims Section -->
+        <div class="drawer-section">
+          <h4 class="section-heading">Pending Claim Verification</h4>
+          <div id="claimsContainer" class="claims-list"></div>
+        </div>
+
+        <!-- Audit Logs Section -->
+        <div class="drawer-section">
+          <h4 class="section-heading">Live System Audit Logs</h4>
+          <div id="auditLogsContainer" class="audit-list"></div>
+        </div>
+
       </div>
-    </div>
+
+    </aside>
   </div>
 
   <script src="app.js"></script>

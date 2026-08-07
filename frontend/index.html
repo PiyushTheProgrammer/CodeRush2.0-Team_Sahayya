@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AURA - Autonomous Unified Research Agent</title>
-  <meta name="description" content="AURA - Autonomous Unified Research Agent with 5-Agent LangGraph Orchestration & Interactive Orb">
+  <meta name="description" content="AURA - Autonomous Unified Research Agent with 5-Agent LangGraph Orchestration & x402 Protocol Payments">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,19 +55,17 @@
       
       <!-- Top Center Area featuring the AURA Orb with 3 small internal holes -->
       <div class="orb-container">
-        
-        <!-- AURA Orb SVG Component (3 internal holes) -->
         <div class="aura-orb state-idle" id="auraOrb" title="AURA Orb State: Idle">
           <svg viewBox="0 0 100 100" class="orb-svg">
             <circle cx="50" cy="50" r="44" class="orb-outer-ring" />
             <circle cx="50" cy="50" r="40" class="orb-body" />
             
-            <!-- 3 Small Internal Holes / Particles -->
+            <!-- 3 Small Internal Holes -->
             <circle cx="40" cy="38" r="5" class="orb-hole hole-1" />
             <circle cx="62" cy="42" r="5" class="orb-hole hole-2" />
             <circle cx="48" cy="64" r="5" class="orb-hole hole-3" />
             
-            <!-- Orbiting data particles for states -->
+            <!-- Orbiting data particles -->
             <circle cx="50" cy="15" r="2" class="orb-particle p-1" />
             <circle cx="85" cy="50" r="2" class="orb-particle p-2" />
             <circle cx="50" cy="85" r="2" class="orb-particle p-3" />
@@ -80,7 +78,6 @@
             <span class="blink-light"></span> Live Activity Stream
           </div>
         </div>
-
       </div>
 
       <!-- Hero Prompt Title -->
@@ -120,20 +117,19 @@
         <div class="user-info">
           <div class="avatar">👤</div>
           <div>
-            <div class="user-name">User Account</div>
-            <div class="user-role">Research Director</div>
+            <div class="user-name" id="profileUserName">Sample Freemium User</div>
+            <div class="user-tier-badge" id="profileUserTier">FREEMIUM TIER</div>
           </div>
         </div>
 
         <div class="profile-menu">
-          <button class="profile-link">lang: EN</button>
-          <button class="profile-link">theme: Dark</button>
-          <button class="profile-link">settings</button>
-          <button class="profile-link logout">logout</button>
+          <button class="profile-link" id="openAuthBtn">Sign In</button>
+          <button class="profile-link upgrade-link" id="openPricingBtn">⚡ x402 Pricing</button>
+          <button class="profile-link logout" id="logoutBtn">Logout</button>
         </div>
       </div>
 
-      <!-- Metrics Panel (AURA Think, Evolution, Evaluation, Governance, Accuracy) -->
+      <!-- Metrics Panel -->
       <div class="metrics-panel">
         <h3 class="panel-heading">AURA System Metrics</h3>
 
@@ -153,8 +149,8 @@
         </div>
 
         <div class="metric-row">
-          <span class="metric-label">Governance</span>
-          <span class="metric-val status-ok" id="metricGovernance">Rule Check OK</span>
+          <span class="metric-label">x402 Protocol</span>
+          <span class="metric-val status-ok" id="metricX402">HTTP 402 Ready</span>
         </div>
 
         <div class="metric-row">
@@ -176,7 +172,81 @@
 
   </div>
 
-  <!-- Permission Modal for Sandbox & Web Scraping Actions -->
+  <!-- Sign In / Sign Up Modal -->
+  <div class="modal-backdrop" id="authModal">
+    <div class="auth-dialog">
+      <div class="auth-header">
+        <h3>Welcome to AURA Platform</h3>
+        <p>Select a sample user profile to enter the Agentic Ecosystem</p>
+      </div>
+
+      <div class="auth-tiers">
+        
+        <!-- Freemium Option -->
+        <div class="auth-tier-card" id="selectFreeTier">
+          <div class="tier-icon">🌱</div>
+          <h4>Freemium User</h4>
+          <div class="tier-price">$0 / month</div>
+          <p>Access standard Hybrid RAG vector search & 5-agent thinking logs.</p>
+          <button class="btn-tier-select">Enter as Freemium User</button>
+        </div>
+
+        <!-- Premium Option -->
+        <div class="auth-tier-card premium" id="selectPremiumTier">
+          <div class="tier-icon">⚡</div>
+          <h4>Premium User (x402)</h4>
+          <div class="tier-price">$5 USDC / task (or $29/mo)</div>
+          <p>Unlock Playwright live web scraping, Docker Sandbox execution & x402 machine payments.</p>
+          <button class="btn-tier-select premium">Enter as Premium User</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- x402 Payment Gateway Modal -->
+  <div class="modal-backdrop hidden" id="x402Modal">
+    <div class="x402-dialog">
+      <div class="x402-header">
+        <div class="x402-title-box">
+          <span class="x402-badge">HTTP 402 PAYMENT REQUIRED</span>
+          <h3>x402 Agentic Payment Gateway</h3>
+        </div>
+        <button class="close-btn" id="closeX402Btn">&times;</button>
+      </div>
+
+      <div class="x402-body">
+        <p class="x402-desc">AURA uses the open <strong>x402 protocol</strong> to enable autonomous agentic micro-payments for deep web scraping and container sandbox execution.</p>
+
+        <!-- HTTP 402 Header Inspector -->
+        <div class="challenge-inspector">
+          <div class="inspector-title">REQUEST HEADER CHALLENGE INSPECTOR:</div>
+          <div class="code-block font-mono">
+HTTP/1.1 402 Payment Required
+X-Payment-Protocol: x402-agentic-v1
+X-Payment-Recipient: 0x402AURA98F290c41A87D25b3491E6200B41E10
+X-Payment-Amount: 5.00 USDC
+X-Payment-Header-Required: X-PAYMENT
+          </div>
+        </div>
+
+        <!-- Recipient Crypto Wallet -->
+        <div class="wallet-box">
+          <div class="wallet-label">RECIPIENT CRYPTO WALLET ADDRESS (USDC / ETH / SOL):</div>
+          <div class="wallet-address font-mono" id="x402WalletAddr">0x402AURA98F290c41A87D25b3491E6200B41E10</div>
+        </div>
+
+        <!-- Payment Actions -->
+        <div class="x402-actions">
+          <button class="btn-verify-x402" id="verifyX402Btn">
+            ⚡ Verify x402 Payment Proof & Upgrade to Premium
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Permission Modal for Sandbox Actions -->
   <div class="modal-backdrop hidden" id="permissionModal">
     <div class="permission-dialog">
       <div class="perm-title">⚠️ Human-in-the-Loop Action Required</div>

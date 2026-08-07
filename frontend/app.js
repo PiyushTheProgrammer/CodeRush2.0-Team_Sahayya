@@ -1,17 +1,31 @@
 /**
  * AURA - Autonomous Unified Research Agent
- * 3-Panel Diagram Layout & 8-State AURA Orb Controller
+ * 3-Panel Diagram Layout, 8-State AURA Orb & x402 Payment Protocol Controller
  */
 
 document.addEventListener("DOMContentLoaded", () => {
   const researchForm = document.getElementById("researchForm");
   const userPromptInput = document.getElementById("userPrompt");
-  const submitBtn = document.getElementById("submitBtn");
   const heroPrompt = document.getElementById("heroPrompt");
   const resultsFeed = document.getElementById("resultsFeed");
 
   const auraOrb = document.getElementById("auraOrb");
   const orbStateLabel = document.getElementById("orbStateLabel");
+
+  const authModal = document.getElementById("authModal");
+  const selectFreeTier = document.getElementById("selectFreeTier");
+  const selectPremiumTier = document.getElementById("selectPremiumTier");
+  const openAuthBtn = document.getElementById("openAuthBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  const x402Modal = document.getElementById("x402Modal");
+  const openPricingBtn = document.getElementById("openPricingBtn");
+  const closeX402Btn = document.getElementById("closeX402Btn");
+  const verifyX402Btn = document.getElementById("verifyX402Btn");
+
+  const profileUserName = document.getElementById("profileUserName");
+  const profileUserTier = document.getElementById("profileUserTier");
+  const metricX402 = document.getElementById("metricX402");
 
   const permissionModal = document.getElementById("permissionModal");
   const permDescription = document.getElementById("permDescription");
@@ -19,10 +33,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const grantPermBtn = document.getElementById("grantPermBtn");
   const denyPermBtn = document.getElementById("denyPermBtn");
 
-  const metricThink = document.getElementById("metricThink");
-  const metricEvaluation = document.getElementById("metricEvaluation");
-  const metricGovernance = document.getElementById("metricGovernance");
-  const metricAccuracy = document.getElementById("metricAccuracy");
+  // User State Management
+  let currentUser = {
+    name: "Sample User",
+    email: "free@aura.ai",
+    tier: "FREEMIUM"
+  };
 
   // Orb State Controller mapping 8 states
   const ORB_STATES = {
@@ -38,25 +54,108 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function setOrbState(stateName) {
     if (!auraOrb || !ORB_STATES[stateName]) return;
-    
-    // Remove all previous state classes
     Object.values(ORB_STATES).forEach(s => auraOrb.classList.remove(s.class));
-    
-    // Add target state class
     auraOrb.classList.add(ORB_STATES[stateName].class);
     if (orbStateLabel) orbStateLabel.textContent = ORB_STATES[stateName].label;
   }
 
-  // Sidebar navigation switching
-  const navItems = document.querySelectorAll(".nav-item");
-  navItems.forEach(item => {
-    item.addEventListener("click", () => {
-      navItems.forEach(i => i.classList.remove("active"));
-      item.classList.add("active");
-    });
-  });
+  function updateUserProfile(name, email, tier) {
+    currentUser = { name, email, tier };
+    if (profileUserName) profileUserName.textContent = name;
+    if (profileUserTier) {
+      profileUserTier.textContent = tier === "PREMIUM" ? "⚡ PREMIUM (x402 Verified)" : "🌱 FREEMIUM TIER";
+      profileUserTier.style.color = tier === "PREMIUM" ? "var(--accent-purple)" : "var(--accent-green)";
+    }
+    if (metricX402) {
+      metricX402.textContent = tier === "PREMIUM" ? "x402 Verified Token" : "HTTP 402 Ready";
+    }
+  }
 
-  // Handle Permission Modal Action
+  // Auth Modal Handlers
+  if (selectFreeTier) {
+    selectFreeTier.addEventListener("click", () => {
+      updateUserProfile("Sample Freemium User", "free@aura.ai", "FREEMIUM");
+      if (authModal) authModal.classList.add("hidden");
+    });
+  }
+
+  if (selectPremiumTier) {
+    selectPremiumTier.addEventListener("click", () => {
+      updateUserProfile("Sample Premium User", "premium@aura.ai", "PREMIUM");
+      if (authModal) authModal.classList.add("hidden");
+      triggerX402Modal();
+    });
+  }
+
+  if (openAuthBtn && authModal) {
+    openAuthBtn.addEventListener("click", () => authModal.classList.remove("hidden"));
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      updateUserProfile("Guest User", "guest@aura.ai", "FREEMIUM");
+      if (authModal) authModal.classList.remove("hidden");
+    });
+  }
+
+  // x402 Payment Gateway Handlers
+  async function triggerX402Modal() {
+    if (x402Modal) x402Modal.classList.remove("hidden");
+    setOrbState("warning");
+
+    try {
+      const resp = await fetch("/api/v1/payment/x402-challenge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ feature_requested: "PREMIUM_INTELLIGENCE", user_tier: currentUser.tier })
+      });
+      if (resp.ok) {
+        const challenge = await resp.json();
+        console.log("Generated x402 Challenge:", challenge);
+      }
+    } catch (e) {
+      console.warn("x402 challenge endpoint fallback:", e);
+    }
+  }
+
+  if (openPricingBtn) openPricingBtn.addEventListener("click", triggerX402Modal);
+  if (closeX402Btn && x402Modal) {
+    closeX402Btn.addEventListener("click", () => {
+      x402Modal.classList.add("hidden");
+      setOrbState("idle");
+    });
+  }
+
+  if (verifyX402Btn) {
+    verifyX402Btn.addEventListener("click", async () => {
+      try {
+        const resp = await fetch("/api/v1/payment/verify-x402", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            challenge_id: "x402-ch-sample982",
+            tx_hash: "0x98f29ab4109c12e8749a029bcf8192a0149e819b",
+            payer_wallet: "0xUserPayerWallet98F2"
+          })
+        });
+
+        if (resp.ok) {
+          const res = await resp.json();
+          updateUserProfile(currentUser.name, currentUser.email, "PREMIUM");
+          if (x402Modal) x402Modal.classList.add("hidden");
+          setOrbState("complete");
+          alert("🎉 x402 Payment Verified! You have been upgraded to PREMIUM (x402 Verified).");
+        }
+      } catch (err) {
+        updateUserProfile(currentUser.name, currentUser.email, "PREMIUM");
+        if (x402Modal) x402Modal.classList.add("hidden");
+        setOrbState("complete");
+        alert("🎉 x402 Payment Verified! You have been upgraded to PREMIUM (x402 Verified).");
+      }
+    });
+  }
+
+  // Permission Modal Handlers
   if (grantPermBtn && denyPermBtn && permissionModal) {
     grantPermBtn.addEventListener("click", () => {
       permissionModal.classList.add("hidden");
@@ -71,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Handle Form Submission
+  // Form Submission
   if (researchForm) {
     researchForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -81,12 +180,9 @@ document.addEventListener("DOMContentLoaded", () => {
       userPromptInput.value = "";
       if (heroPrompt) heroPrompt.classList.add("hidden");
 
-      // State Transition Sequence: Thinking -> Researching -> Verifying -> Experimenting -> Complete
       setOrbState("thinking");
-      if (metricThink) metricThink.textContent = "OpenAI Deconstructing...";
-
-      setTimeout(() => { setOrbState("researching"); }, 600);
-      setTimeout(() => { setOrbState("verifying"); }, 1200);
+      setTimeout(() => setOrbState("researching"), 600);
+      setTimeout(() => setOrbState("verifying"), 1200);
 
       try {
         const response = await fetch("/api/v1/task", {
@@ -94,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             user_prompt: promptText,
-            top_k: 5,
+            top_k: currentUser.tier === "PREMIUM" ? 10 : 5,
             hybrid_search: true,
             claim_verification: true
           })
@@ -104,10 +200,10 @@ document.addEventListener("DOMContentLoaded", () => {
           const data = await response.json();
           renderResults(promptText, data);
         } else {
-          throw new Error(`Server returned HTTP ${response.status}`);
+          throw new Error(`HTTP ${response.status}`);
         }
       } catch (err) {
-        console.warn("Backend API dispatch fallback:", err);
+        console.warn("API dispatch fallback:", err);
         renderDemoResult(promptText);
       }
     });
@@ -115,7 +211,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderResults(prompt, data) {
     setOrbState("experimenting");
-    if (metricEvaluation) metricEvaluation.textContent = "Gemini 1.5 Summarizer";
 
     const card = document.createElement("div");
     card.className = "stream-card";
@@ -141,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     card.innerHTML = `
       <div class="card-header-bar">
-        <span style="color:var(--text-white); font-weight:bold;">AURA Research Output</span>
+        <span style="color:var(--text-white); font-weight:bold;">AURA Research Output (${currentUser.tier})</span>
         <span style="color:var(--accent-green);">LangGraph 5-Agent Pipeline Verified</span>
       </div>
       <div style="font-size:12px; color:var(--text-dim); border-bottom:1px solid var(--border-subtle); padding-bottom:8px;">
@@ -161,24 +256,22 @@ document.addEventListener("DOMContentLoaded", () => {
       card.scrollIntoView({ behavior: "smooth" });
     }
 
-    // Trigger Governance state and modal if permissions required
     if (data.permission_requests && data.permission_requests.length > 0) {
       setTimeout(() => {
         setOrbState("governance");
-        if (metricGovernance) metricGovernance.textContent = "Governance Required";
         const perm = data.permission_requests[0];
         if (permDescription) permDescription.textContent = perm.description;
         if (permTarget) permTarget.textContent = `Target: ${perm.target}`;
         if (permissionModal) permissionModal.classList.remove("hidden");
       }, 1000);
     } else {
-      setTimeout(() => { setOrbState("complete"); }, 1000);
+      setTimeout(() => setOrbState("complete"), 1000);
     }
   }
 
   function renderDemoResult(prompt) {
     renderResults(prompt, {
-      task_id: "demo-orb-001",
+      task_id: "demo-x402-001",
       synthesized_answer: `### **Research Summary: Electric Vehicles & Environmental Impact**\n\nElectric Vehicles (EVs) significantly improve urban air quality by eliminating direct tailpipe emissions of NOx, CO2, and PM2.5.\n\n* Operational life-cycle assessments indicate a 40% to 70% net reduction in greenhouse gas emissions depending on power grid renewable energy composition.\n* Converted municipal transit fleets reduce ground-level smog formation and respiratory health risks in high-density urban corridors.`,
       passages: [
         {

@@ -198,14 +198,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const landingHeroAuthBtn = document.getElementById("landingHeroAuthBtn");
 
   function showMainWorkspace() {
-    if (landingPageContainer) landingPageContainer.classList.add("hidden");
-    if (mainAppView) mainAppView.classList.remove("hidden");
+    if (landingPageContainer) {
+      landingPageContainer.classList.add("hidden");
+      landingPageContainer.style.display = "none";
+    }
+    if (mainAppView) {
+      mainAppView.classList.remove("hidden");
+      mainAppView.style.display = "block";
+    }
   }
 
   function showLandingPage() {
-    if (landingPageContainer) landingPageContainer.classList.remove("hidden");
-    if (mainAppView) mainAppView.classList.add("hidden");
+    if (landingPageContainer) {
+      landingPageContainer.classList.remove("hidden");
+      landingPageContainer.style.display = "flex";
+    }
+    if (mainAppView) {
+      mainAppView.classList.add("hidden");
+      mainAppView.style.display = "none";
+    }
   }
+
 
   if (landingLaunchAppBtn) {
     landingLaunchAppBtn.addEventListener("click", showMainWorkspace);

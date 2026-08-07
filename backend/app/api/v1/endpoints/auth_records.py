@@ -189,7 +189,9 @@ async def get_current_user_profile():
         "full_name": "Anuj",
         "email": "anuj@aura.ai",
         "user_tier": "FREEMIUM",
-        "evolution_gain": "+14.2% Precision Gain (v1.0.4)",
+        "evolution_gain": "+16.8% Precision Gain (v1.0.4)",
+        "accuracy_metric": "97.2% Entailment",
+        "user_growth": "+22.4% Skill Mastery",
         "active_sessions_count": 31,
         "inactive_topics_count": len(MOCK_INACTIVE_TOPICS)
     }
@@ -203,12 +205,15 @@ async def get_user_records_analytics():
     """
     return {
         "user_name": "Anuj",
-        "evolution_metric": "+14.2% Precision Gain (v1.0.4)",
+        "evolution_metric": "+16.8% Precision Gain (v1.0.4)",
+        "accuracy_metric": "97.2% Entailment Accuracy",
+        "user_growth": "+22.4% Skill Mastery",
         "most_focused_topics": [
             {"topic": "Cybersecurity & Agent Defense", "percentage": 42, "sessions": 18, "depth": "Deep"},
             {"topic": "AI & Agentic Systems", "percentage": 31, "sessions": 12, "depth": "Deep"},
             {"topic": "Defence Technology", "percentage": 17, "sessions": 7, "depth": "Medium"}
         ],
+
         "less_focused_topics": [
             {"topic": "Basic programming syntax", "percentage": 5, "sessions": 3, "depth": "Quick"},
             {"topic": "Legacy web scraping", "percentage": 3, "sessions": 2, "depth": "Quick"},

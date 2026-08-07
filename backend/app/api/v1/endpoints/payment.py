@@ -5,12 +5,20 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, status, Header
 from pydantic import BaseModel
 
+from x402 import (
+    x402ResourceServer,
+    PaymentRequiredV1,
+    PaymentRequirementsV1
+)
+
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-# x402 Payment Protocol Configuration
+# x402 Payment Protocol Configuration & Resource Server
 X402_RECIPIENT_WALLET = "0x402AURA98F290c41A87D25b3491E6200B41E10"
 DEFAULT_MICRO_PAYMENT_USDC = 5.00
+
+x402_server = x402ResourceServer()
 
 
 class X402ChallengeRequest(BaseModel):
@@ -26,6 +34,8 @@ class X402ChallengeResponse(BaseModel):
     accepted_currencies: List[str]
     challenge_id: str
     payment_header_required: str = "X-PAYMENT"
+    x402_protocol_version: int = 1
+    x402_requirements: Dict[str, Any]
     instructions: str
 
 
@@ -47,11 +57,29 @@ class X402VerifyResponse(BaseModel):
 @router.post("/x402-challenge", response_model=X402ChallengeResponse)
 async def generate_x402_challenge(request: X402ChallengeRequest):
     """
-    Generate an HTTP 402 Payment Required challenge payload as specified in the x402 protocol standard.
+    Generate an HTTP 402 Payment Required challenge payload as specified in the official x402 protocol standard.
     Allows AI agents and users to construct machine-to-machine crypto/stablecoin payments.
     """
     challenge_id = f"x402-ch-{uuid.uuid4().hex[:12]}"
-    logger.info(f"Generated x402 payment challenge #{challenge_id} for feature '{request.feature_requested}'")
+    
+    # Construct official x402 Payment Requirements
+    x402_req = PaymentRequirementsV1(
+        scheme="exact",
+        network="evm:eip155:1", # Ethereum / Base EVM network
+        amount="5000000", # 5.00 USDC (6 decimals)
+        asset="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", # USDC token contract
+        payTo=X402_RECIPIENT_WALLET,
+        resource=request.feature_requested,
+        maxAmountRequired="5000000",
+        maxTimeoutSeconds=3600
+    )
+
+    x402_payload = PaymentRequiredV1(
+        x402_version=1,
+        accepts=[x402_req]
+    )
+
+    logger.info(f"Generated official x402 payment challenge #{challenge_id} for feature '{request.feature_requested}'")
     
     return X402ChallengeResponse(
         status_code=402,
@@ -61,11 +89,14 @@ async def generate_x402_challenge(request: X402ChallengeRequest):
         accepted_currencies=["USDC", "ETH", "SOL"],
         challenge_id=challenge_id,
         payment_header_required="X-PAYMENT",
+        x402_protocol_version=1,
+        x402_requirements=x402_payload.model_dump(),
         instructions=(
             f"Send {DEFAULT_MICRO_PAYMENT_USDC} USDC to recipient {X402_RECIPIENT_WALLET} "
             f"and present the signed transaction hash in the X-PAYMENT header to unlock premium agentic research."
         ),
     )
+
 
 
 @router.post("/verify-x402", response_model=X402VerifyResponse)

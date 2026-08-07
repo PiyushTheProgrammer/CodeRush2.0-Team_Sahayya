@@ -1,12 +1,12 @@
-# CodeRush 2.0 | Team Project Repository
+# CodeRush 2.0 | Team Sahayya
 
 ---
 
 ## Project Information
 
-- **Team Name**: Sahayya
-- **Project Title**: [Enter Project Title]
-- **Track/Theme**: [Enter Track]
+- **Team Name**: Team Sahayya
+- **Project Title**: Self-Evolving Autonomous Research Agent
+- **Track/Theme**: Agentic Ecosystem
 
 ---
 

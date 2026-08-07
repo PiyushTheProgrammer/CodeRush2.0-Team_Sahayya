@@ -220,63 +220,81 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
+  function openAuthModal(tab = "login") {
+    if (tab === "register") {
+      showRegisterTab();
+    } else {
+      showLoginTab();
+    }
+    if (authModal) {
+      authModal.classList.remove("hidden");
+      authModal.style.display = "flex";
+    }
+  }
+
+  function closeAuthModal() {
+    if (authModal) {
+      authModal.classList.add("hidden");
+      authModal.style.display = "none";
+    }
+  }
+
   if (landingLaunchAppBtn) {
     landingLaunchAppBtn.addEventListener("click", showMainWorkspace);
   }
 
-  if (landingSignInBtn && authModal) {
-    landingSignInBtn.addEventListener("click", () => {
-      showLoginTab();
-      authModal.classList.remove("hidden");
-    });
+  if (landingSignInBtn) {
+    landingSignInBtn.addEventListener("click", () => openAuthModal("login"));
   }
 
-  if (landingSignUpBtn && authModal) {
-    landingSignUpBtn.addEventListener("click", () => {
-      showRegisterTab();
-      authModal.classList.remove("hidden");
-    });
+  if (landingSignUpBtn) {
+    landingSignUpBtn.addEventListener("click", () => openAuthModal("register"));
   }
 
-  if (landingHeroAuthBtn && authModal) {
-    landingHeroAuthBtn.addEventListener("click", () => {
-      showLoginTab();
-      authModal.classList.remove("hidden");
-    });
+  if (landingHeroAuthBtn) {
+    landingHeroAuthBtn.addEventListener("click", () => openAuthModal("login"));
   }
 
   // Auth Tab & Form Handlers
   function showLoginTab() {
-    if (loginForm) loginForm.classList.remove("hidden");
-    if (registerForm) registerForm.classList.add("hidden");
+    if (loginForm) {
+      loginForm.classList.remove("hidden");
+      loginForm.style.display = "flex";
+    }
+    if (registerForm) {
+      registerForm.classList.add("hidden");
+      registerForm.style.display = "none";
+    }
     if (tabLoginBtn) tabLoginBtn.classList.add("active");
     if (tabRegisterBtn) tabRegisterBtn.classList.remove("active");
   }
 
   function showRegisterTab() {
-    if (loginForm) loginForm.classList.add("hidden");
-    if (registerForm) registerForm.classList.remove("hidden");
+    if (loginForm) {
+      loginForm.classList.add("hidden");
+      loginForm.style.display = "none";
+    }
+    if (registerForm) {
+      registerForm.classList.remove("hidden");
+      registerForm.style.display = "flex";
+    }
     if (tabLoginBtn) tabLoginBtn.classList.remove("active");
     if (tabRegisterBtn) tabRegisterBtn.classList.add("active");
   }
 
-  if (headerLoginBtn && authModal) {
-    headerLoginBtn.addEventListener("click", () => {
-      showLoginTab();
-      authModal.classList.remove("hidden");
-    });
+  if (headerLoginBtn) {
+    headerLoginBtn.addEventListener("click", () => openAuthModal("login"));
   }
 
-  if (headerRegisterBtn && authModal) {
-    headerRegisterBtn.addEventListener("click", () => {
-      showRegisterTab();
-      authModal.classList.remove("hidden");
-    });
+  if (headerRegisterBtn) {
+    headerRegisterBtn.addEventListener("click", () => openAuthModal("register"));
   }
 
   if (tabLoginBtn) tabLoginBtn.addEventListener("click", showLoginTab);
   if (tabRegisterBtn) tabRegisterBtn.addEventListener("click", showRegisterTab);
-  if (closeAuthBtn && authModal) closeAuthBtn.addEventListener("click", () => authModal.classList.add("hidden"));
+  if (closeAuthBtn) closeAuthBtn.addEventListener("click", closeAuthModal);
+  if (openAuthBtn) openAuthBtn.addEventListener("click", () => openAuthModal("login"));
+
 
   // Submit Login
   if (loginForm) {
@@ -292,11 +310,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const data = await resp.json();
         updateUserProfile(data.full_name, data.email, data.user_tier);
-        if (authModal) authModal.classList.add("hidden");
+        closeAuthModal();
         showMainWorkspace();
       } catch (err) {
         updateUserProfile(email.split("@")[0], email, "FREEMIUM");
-        if (authModal) authModal.classList.add("hidden");
+        closeAuthModal();
         showMainWorkspace();
       }
     });
@@ -318,15 +336,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const data = await resp.json();
         updateUserProfile(data.full_name, data.email, data.user_tier);
-        if (authModal) authModal.classList.add("hidden");
+        closeAuthModal();
         showMainWorkspace();
       } catch (err) {
         updateUserProfile(fullName, email, tier);
-        if (authModal) authModal.classList.add("hidden");
+        closeAuthModal();
         showMainWorkspace();
       }
     });
   }
+
 
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {

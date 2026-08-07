@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy import text
 
 from app.api.v1.api import api_router
+from app.api import research_router
 from app.core.config import settings
 from app.db.init_pgvector import init_pgvector
 from app.db.session import engine
@@ -45,6 +46,8 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(research_router.router, prefix="/api/research", tags=["Research Package API"])
+
 
 
 @app.get("/health", tags=["Health"])

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AURA - Autonomous Unified Research Agent</title>
-  <meta name="description" content="AURA - Autonomous Unified Research Agent with PgVector Cosine Search & Dual Embedding Provider Fallback">
+  <meta name="description" content="AURA - Multi-Agent Autonomous Unified Research Agent with PgVector Cosine Search & Human-in-the-loop Governance">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,17 +18,27 @@
   <!-- App Container -->
   <div class="app-layout">
     
-    <!-- Header -->
+    <!-- Top Navigation Header -->
     <header class="top-nav">
       <div class="nav-brand">
         <div class="brand-sparkle">✦</div>
         <h1 class="brand-title">AURA - Autonomous Unified Research Agent</h1>
       </div>
 
+      <!-- Live Agent Status Indicators -->
+      <div class="agent-status-bar" id="agentStatusBar">
+        <div class="agent-pill active" title="Controller Agent">🤖 Controller</div>
+        <div class="agent-pill" id="pillEmbedding" title="Embedding Agent">🧠 Embedder</div>
+        <div class="agent-pill" id="pillRetrieval" title="Hybrid Retrieval Agent">🔍 Hybrid RAG</div>
+        <div class="agent-pill" id="pillClaim" title="Claim Verification Agent">🛡️ Claim Guard</div>
+        <div class="agent-pill" id="pillSandbox" title="Sandbox Execution Agent">🔒 Sandbox</div>
+        <div class="agent-pill" id="pillSynthesis" title="Synthesis Agent">✍️ Synthesizer</div>
+      </div>
+
       <div class="nav-right">
         <div class="status-pill" id="dbStatus">
           <span class="status-dot online"></span>
-          <span class="status-text">PgVector Connected</span>
+          <span class="status-text">Supabase PgVector</span>
         </div>
 
         <button class="drawer-btn" id="openDrawerBtn">
@@ -38,7 +48,7 @@
       </div>
     </header>
 
-    <!-- Main Workspace (ChatGPT / Gemini Stream) -->
+    <!-- Main Workspace Stream (ChatGPT / Gemini / DeepSeek Aesthetic) -->
     <main class="chat-workspace">
       
       <!-- Welcome Hero / Feed Container -->
@@ -47,14 +57,14 @@
         <div class="hero-box" id="heroBox">
           <div class="hero-icon">✨</div>
           <h2>What would you like to research today?</h2>
-          <p>AURA combines BM25 keyword frequency with Supabase pgvector cosine search, dual-provider embeddings (OpenAI & Gemini), Reciprocal Rank Fusion (RRF), and Time-Aware Decay ranking.</p>
+          <p>AURA dispatches specialized AI agents: Controller, Dual Embedder, Hybrid PgVector RAG, Claim Verification, Sandbox Controller, and Synthesis Agent.</p>
 
           <div class="prompt-suggestions">
+            <button class="suggestion-chip" onclick="fillPrompt('Tell me how much EV\'s are controlling pollution?')">
+              🌱 EV Air Pollution Reduction
+            </button>
             <button class="suggestion-chip" onclick="fillPrompt('Analyze Supabase pgvector performance with NullPool connection pooling under high concurrent loads.')">
               ⚡ Supabase PgVector Performance
-            </button>
-            <button class="suggestion-chip" onclick="fillPrompt('Evaluate Reciprocal Rank Fusion (RRF) accuracy against dense vector cosine search.')">
-              🧠 RRF Hybrid Ranking Math
             </button>
             <button class="suggestion-chip" onclick="fillPrompt('Verify Docker sandbox isolation resource limits for non-root Python execution.')">
               🔒 Docker Sandbox Security
@@ -62,12 +72,12 @@
           </div>
         </div>
 
-        <!-- Research Stream Results populated dynamically -->
+        <!-- Research Stream Results & Multi-Agent Thinking Stream -->
         <div class="results-feed hidden" id="resultsFeed"></div>
 
       </div>
 
-      <!-- Bottom Floating Input Console (ChatGPT / Gemini Style) -->
+      <!-- Bottom Floating Input Console -->
       <div class="bottom-input-bar">
         <form id="researchForm" class="input-form">
           
@@ -108,12 +118,35 @@
         </form>
         
         <div class="disclaimer-text">
-          AURA - Autonomous Unified Research Agent • PgVector Cosine Search • OpenAI & Gemini Fallback
+          AURA - Autonomous Unified Research Agent • Multi-Agent Pipeline • PgVector Cosine Search • OpenAI & Gemini Fallback
         </div>
       </div>
 
     </main>
 
+  </div>
+
+  <!-- Interactive Human-in-the-Loop Permission Modal -->
+  <div class="modal-backdrop hidden" id="permissionModal">
+    <div class="permission-card">
+      <div class="permission-header">
+        <div class="perm-icon">⚠️</div>
+        <div>
+          <h3>Agent Permission Request</h3>
+          <p id="permAgentName">Sandbox Execution Agent</p>
+        </div>
+      </div>
+
+      <div class="permission-body">
+        <p id="permDescription">Agent requests permission to execute Docker Sandbox Python script in isolated container.</p>
+        <div class="perm-target" id="permTarget">Target: aura-agent-runner:latest container (512MB RAM, 1 CPU)</div>
+      </div>
+
+      <div class="permission-footer">
+        <button class="btn-deny" id="denyPermBtn">Deny Action</button>
+        <button class="btn-grant" id="grantPermBtn">Grant Permission</button>
+      </div>
+    </div>
   </div>
 
   <!-- Governance & Audit Log Slide-over Drawer -->
@@ -130,13 +163,11 @@
 
       <div class="drawer-content">
         
-        <!-- Claims Section -->
         <div class="drawer-section">
           <h4 class="section-heading">Pending Claim Verification</h4>
           <div id="claimsContainer" class="claims-list"></div>
         </div>
 
-        <!-- Audit Logs Section -->
         <div class="drawer-section">
           <h4 class="section-heading">Live System Audit Logs</h4>
           <div id="auditLogsContainer" class="audit-list"></div>

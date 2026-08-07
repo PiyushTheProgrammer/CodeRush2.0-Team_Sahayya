@@ -1,5 +1,6 @@
 import re
 import uuid
+import json
 import logging
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -10,7 +11,9 @@ import httpx
 
 from app.core.config import settings
 from app.db.session import get_db
+from app.db.chat_history_db import save_chat_session_db
 from app.models.schema import AuditLog, ClaimNode, DocumentPassage, ResearchTask
+
 from app.rag.hybrid_search import HybridRAGEngine
 from app.rag.realtime_search import RealtimeWebSearchEngine
 from app.sandbox.docker_controller import DockerSandboxController
@@ -391,6 +394,23 @@ async def create_research_task(
         user_growth_label=f"+{dynamic_growth}% Skill Mastery"
     )
 
+
+    # 8. Save Research Session into Supabase PostgreSQL aura_chat_history table
+    try:
+        passages_json_str = json.dumps([p.model_dump() for p in formatted_passages])
+        claims_json_str = json.dumps([c.model_dump() for c in claims])
+        await save_chat_session_db(
+            task_id=task_id_str,
+            user_email="anuj@aura.ai",
+            user_prompt=request.user_prompt,
+            synthesized_answer=synthesized_answer,
+            passages_json=passages_json_str,
+            claims_json=claims_json_str,
+            is_saved=False
+        )
+    except Exception as e:
+        logger.warning(f"Failed to auto-persist chat session into Supabase PostgreSQL: {e}")
+
     return TaskExecutionResponse(
         task_id=task_id_str,
         status="COMPLETED",
@@ -403,6 +423,7 @@ async def create_research_task(
         audit_logs=audit_logs,
         metrics=dynamic_metrics,
     )
+
 
 
 

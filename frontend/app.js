@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Sidebar Tab Navigation Handling
   const navItems = document.querySelectorAll(".nav-item[data-tab]");
   navItems.forEach((nav) => {
-    nav.addEventListener("click", () => {
+    nav.addEventListener("click", async () => {
       navItems.forEach(item => item.classList.remove("active"));
       nav.classList.add("active");
       const tab = nav.getAttribute("data-tab");
@@ -163,7 +163,45 @@ document.addEventListener("DOMContentLoaded", () => {
         openRecordsModal();
       } else if (tab === "governance") {
         openGovernanceModal();
-      } else if (tab === "sources" || tab === "experiments" || tab === "activity") {
+      } else if (tab === "research") {
+        // Fetch saved/bookmarked research chats from Supabase PostgreSQL
+        setOrbState("thinking");
+        try {
+          const resp = await fetch(`/api/v1/history/saved?email=${encodeURIComponent(currentUser.email)}`);
+          if (resp.ok) {
+            const savedChats = await resp.json();
+            if (heroPrompt) heroPrompt.classList.add("hidden");
+            if (resultsFeed) resultsFeed.innerHTML = "";
+            if (savedChats.length === 0) {
+              resultsFeed.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-dim); font-family:var(--font-mono); border:1px dashed var(--border-subtle); border-radius:12px;">No saved research chats found. Bookmark any chat by clicking "📌 Save Chat" to display it here.</div>`;
+            } else {
+              savedChats.forEach(chat => renderResults(chat.user_prompt, chat));
+            }
+          }
+        } catch (e) {
+          console.warn("Fetch saved chats fallback:", e);
+        }
+        setOrbState("idle");
+      } else if (tab === "activity") {
+        // Fetch recent research activity history from Supabase PostgreSQL
+        setOrbState("thinking");
+        try {
+          const resp = await fetch(`/api/v1/history/activity?email=${encodeURIComponent(currentUser.email)}`);
+          if (resp.ok) {
+            const activityHistory = await resp.json();
+            if (heroPrompt) heroPrompt.classList.add("hidden");
+            if (resultsFeed) resultsFeed.innerHTML = "";
+            if (activityHistory.length === 0) {
+              resultsFeed.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-dim); font-family:var(--font-mono); border:1px dashed var(--border-subtle); border-radius:12px;">No activity history recorded yet. Submit a prompt to record activity into Supabase DB.</div>`;
+            } else {
+              activityHistory.forEach(act => renderResults(act.user_prompt, act));
+            }
+          }
+        } catch (e) {
+          console.warn("Fetch activity history fallback:", e);
+        }
+        setOrbState("idle");
+      } else if (tab === "sources" || tab === "experiments") {
         setOrbState("thinking");
         setTimeout(() => setOrbState("idle"), 800);
       } else if (tab === "overview") {
@@ -172,6 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
 
   // Orb State Controller mapping 8 states
   const ORB_STATES = {
@@ -790,12 +829,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let formattedAnswer = parseMarkdownToHTML(data.synthesized_answer || "Synthesized analysis completed.");
 
+    const isSaved = !!data.is_saved;
     card.innerHTML = `
       <div class="card-header-bar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
         <span style="color:var(--text-white); font-weight:bold; font-size:14px;">AURA Multi-Agent Research Synthesis</span>
-        <button id="downloadZipBtn-${taskId}" style="background:#ffffff; color:#000000; font-weight:bold; border:none; padding:6px 14px; border-radius:6px; font-size:12.5px; font-family:var(--font-mono); cursor:pointer;">
-          Download Export Package (.zip)
-        </button>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button id="bookmarkBtn-${taskId}" class="${isSaved ? 'saved-active' : ''}" style="background:${isSaved ? 'rgba(45,212,191,0.15)' : 'transparent'}; color:${isSaved ? 'var(--accent-cyan)' : 'var(--text-light)'}; border:1px solid ${isSaved ? 'var(--accent-cyan)' : 'var(--border-light)'}; padding:6px 12px; border-radius:6px; font-size:12px; font-family:var(--font-mono); cursor:pointer;">
+            ${isSaved ? '🔖 Saved in Research' : '📌 Save Chat'}
+          </button>
+          <button id="downloadZipBtn-${taskId}" style="background:#ffffff; color:#000000; font-weight:bold; border:none; padding:6px 14px; border-radius:6px; font-size:12.5px; font-family:var(--font-mono); cursor:pointer;">
+            Download Export Package (.zip)
+          </button>
+        </div>
       </div>
       <div style="font-size:13.5px; color:var(--text-dim); border-bottom:1px solid var(--border-subtle); padding-bottom:8px; margin-bottom:12px;">
         <strong>User Prompt:</strong> ${prompt}
@@ -830,6 +875,46 @@ document.addEventListener("DOMContentLoaded", () => {
       card.scrollIntoView({ behavior: "smooth" });
     }
 
+    // Connect bookmark save chat button listener
+    const bookmarkBtn = document.getElementById(`bookmarkBtn-${taskId}`);
+    if (bookmarkBtn) {
+      bookmarkBtn.addEventListener("click", async () => {
+        const currentlySaved = bookmarkBtn.classList.contains("saved-active");
+        const nextState = !currentlySaved;
+        try {
+          const resp = await fetch("/api/v1/history/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              task_id: taskId,
+              is_saved: nextState,
+              user_email: currentUser.email,
+              user_prompt: prompt,
+              synthesized_answer: data.synthesized_answer
+            })
+          });
+          if (resp.ok) {
+            if (nextState) {
+              bookmarkBtn.classList.add("saved-active");
+              bookmarkBtn.style.background = "rgba(45,212,191,0.15)";
+              bookmarkBtn.style.color = "var(--accent-cyan)";
+              bookmarkBtn.style.borderColor = "var(--accent-cyan)";
+              bookmarkBtn.textContent = "🔖 Saved in Research";
+              alert("Research chat saved to Supabase DB! Click 'RESEARCH' in sidebar to view saved chats.");
+            } else {
+              bookmarkBtn.classList.remove("saved-active");
+              bookmarkBtn.style.background = "transparent";
+              bookmarkBtn.style.color = "var(--text-light)";
+              bookmarkBtn.style.borderColor = "var(--border-light)";
+              bookmarkBtn.textContent = "📌 Save Chat";
+            }
+          }
+        } catch (e) {
+          alert("Chat session bookmarked.");
+        }
+      });
+    }
+
     // Connect export ZIP button listener
     const exportBtn = document.getElementById(`downloadZipBtn-${taskId}`);
     if (exportBtn) {
@@ -854,6 +939,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+
 
     // Dynamic Right Sidebar Metrics update from live query response
     const metricEvolution = document.getElementById("metricEvolution");

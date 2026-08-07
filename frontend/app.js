@@ -102,21 +102,53 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  const profileAvatarTrigger = document.getElementById("profileAvatarTrigger");
+  const profileMenuDropdown = document.getElementById("profileMenuDropdown");
+  const menuEditProfileBtn = document.getElementById("menuEditProfileBtn");
+  const menuLanguageBtn = document.getElementById("menuLanguageBtn");
+  const menuSettingsBtn = document.getElementById("menuSettingsBtn");
+  const menuLogoutBtn = document.getElementById("menuLogoutBtn");
 
+  if (profileAvatarTrigger && profileMenuDropdown) {
+    profileAvatarTrigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      profileMenuDropdown.classList.toggle("hidden");
+    });
 
-  const userDropdownTrigger = document.getElementById("userDropdownTrigger");
-  const openSettingsHeaderBtn = document.getElementById("openSettingsHeaderBtn");
-  const footerSettingsBtn = document.getElementById("footerSettingsBtn");
-
-  // Header and Navigation Buttons
-  if (userDropdownTrigger && authModal) {
-    userDropdownTrigger.addEventListener("click", () => authModal.classList.remove("hidden"));
+    document.addEventListener("click", (e) => {
+      if (!profileAvatarTrigger.contains(e.target) && !profileMenuDropdown.contains(e.target)) {
+        profileMenuDropdown.classList.add("hidden");
+      }
+    });
   }
-  if (openSettingsHeaderBtn && authModal) {
-    openSettingsHeaderBtn.addEventListener("click", () => authModal.classList.remove("hidden"));
+
+  if (menuEditProfileBtn) {
+    menuEditProfileBtn.addEventListener("click", () => {
+      if (profileMenuDropdown) profileMenuDropdown.classList.add("hidden");
+      openAuthModal("login");
+    });
   }
-  if (footerSettingsBtn && authModal) {
-    footerSettingsBtn.addEventListener("click", () => authModal.classList.remove("hidden"));
+
+  if (menuLanguageBtn) {
+    menuLanguageBtn.addEventListener("click", () => {
+      alert("Current User Language: English (US)");
+      if (profileMenuDropdown) profileMenuDropdown.classList.add("hidden");
+    });
+  }
+
+  if (menuSettingsBtn) {
+    menuSettingsBtn.addEventListener("click", () => {
+      if (profileMenuDropdown) profileMenuDropdown.classList.add("hidden");
+      triggerX402Modal();
+    });
+  }
+
+  if (menuLogoutBtn) {
+    menuLogoutBtn.addEventListener("click", () => {
+      if (profileMenuDropdown) profileMenuDropdown.classList.add("hidden");
+      updateUserProfile("Guest User", "guest@aura.ai", "FREEMIUM");
+      showLandingPage();
+    });
   }
 
   // Sidebar Tab Navigation Handling
@@ -129,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
       
       if (tab === "records") {
         openRecordsModal();
-      } else if (tab === "evolution" || tab === "governance") {
+      } else if (tab === "governance") {
         openGovernanceModal();
       } else if (tab === "sources" || tab === "experiments" || tab === "activity") {
         setOrbState("thinking");
@@ -141,18 +173,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-
-
   // Orb State Controller mapping 8 states
   const ORB_STATES = {
-    idle: { class: "state-idle", label: "AURA State: 1. Idle (Soft Breathing)" },
-    thinking: { class: "state-thinking", label: "AURA State: 2. Thinking (Rotating Internal Particles)" },
-    researching: { class: "state-researching", label: "AURA State: 3. Researching (Orbiting Data Points)" },
-    verifying: { class: "state-verifying", label: "AURA State: 4. Verifying (Converging Points)" },
-    experimenting: { class: "state-experimenting", label: "AURA State: 5. Experimenting (Pulse/Ring Expansion)" },
-    warning: { class: "state-warning", label: "AURA State: 6. Warning (Subtle Amber Glow)" },
-    governance: { class: "state-governance", label: "AURA State: 7. Governance Required (Amber/Red Halo)" },
-    complete: { class: "state-complete", label: "AURA State: 8. Complete (Calm Settled State)" }
+    idle: { label: "AURA State: Idle (Soft Breathing)", class: "state-idle" },
+    thinking: { label: "AURA State: Thinking (Formulating RAG Strategy)", class: "state-thinking" },
+    researching: { label: "AURA State: Researching (Executing Web Search & RAG Vector Retrieval)", class: "state-researching" },
+    experimenting: { label: "AURA State: Experimenting (Evaluating RAG Strategy Benchmarks)", class: "state-experimenting" },
+    verifying: { label: "AURA State: Verifying (Fact Entailment & AST Code Verification)", class: "state-verifying" },
+    complete: { label: "AURA State: Complete (Synthesis Ready)", class: "state-complete" },
+    warning: { label: "AURA State: Warning (AST Gatekeeper / x402 Required)", class: "state-warning" },
+    governance: { label: "AURA State: Governance (Strategy Inspection)", class: "state-governance" }
   };
 
   function setOrbState(stateName) {
@@ -164,8 +194,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateUserProfile(name, email, tier) {
     currentUser = { name, email, tier };
+    const initials = name ? name.trim().charAt(0).toUpperCase() : "A";
+    const headerUserInitials = document.getElementById("headerUserInitials");
+    const headerUserAvatarSm = document.getElementById("headerUserAvatarSm");
+    const headerMenuUserName = document.getElementById("headerMenuUserName");
+    const headerMenuUserTier = document.getElementById("headerMenuUserTier");
+
+    if (headerUserInitials) headerUserInitials.textContent = initials;
+    if (headerUserAvatarSm) headerUserAvatarSm.textContent = initials;
+    if (headerMenuUserName) headerMenuUserName.textContent = name;
     if (profileUserName) profileUserName.textContent = name;
     if (headerUserName) headerUserName.textContent = name;
+    if (headerMenuUserTier) {
+      headerMenuUserTier.textContent = tier === "PREMIUM" ? "PREMIUM (x402 Verified)" : "FREEMIUM TIER";
+    }
     if (profileUserTier) {
       profileUserTier.textContent = tier === "PREMIUM" ? "PREMIUM (x402 Verified)" : "FREEMIUM TIER";
       profileUserTier.style.color = tier === "PREMIUM" ? "var(--accent-cyan)" : "var(--text-dim)";

@@ -114,12 +114,39 @@
         <span class="brand-subtitle">Autonomous Research Intelligence</span>
       </div>
       <div class="header-right">
-        <span class="live-pill"><span class="pulse-dot"></span> LIVE</span>
         
-        <div class="user-dropdown" id="userDropdownTrigger">
-          <span id="headerUserName">Anuj</span> ▾
+        <!-- Profile Circle Button & Dropdown Menu -->
+        <div class="profile-avatar-container">
+          <button class="profile-avatar-btn" id="profileAvatarTrigger" title="User Profile Menu">
+            <span id="headerUserInitials">A</span>
+          </button>
+
+          <!-- Profile Dropdown Popup Menu -->
+          <div class="profile-dropdown-menu hidden font-mono" id="profileMenuDropdown">
+            <div class="profile-menu-header font-sans">
+              <div class="avatar-sm" id="headerUserAvatarSm">A</div>
+              <div>
+                <div class="profile-name" id="headerMenuUserName">Anuj</div>
+                <div class="profile-tier" id="headerMenuUserTier">FREEMIUM TIER</div>
+              </div>
+            </div>
+            <div class="menu-divider"></div>
+            <button class="profile-menu-item" id="menuEditProfileBtn">
+              <span>👤</span> Edit Profile
+            </button>
+            <button class="profile-menu-item" id="menuLanguageBtn">
+              <span>🌐</span> User Language (EN)
+            </button>
+            <button class="profile-menu-item" id="menuSettingsBtn">
+              <span>⚙️</span> Settings
+            </button>
+            <div class="menu-divider"></div>
+            <button class="profile-menu-item logout-item" id="menuLogoutBtn">
+              <span>↪️</span> Logout
+            </button>
+          </div>
         </div>
-        <button class="icon-gear-btn" id="openSettingsHeaderBtn" title="Settings">⚙️</button>
+
       </div>
     </header>
     
@@ -149,9 +176,6 @@
           <button class="nav-item" data-tab="experiments">
             <span class="nav-symbol">◇</span> EXPERIMENTS
           </button>
-          <button class="nav-item" data-tab="evolution" id="openEvolutionBtn">
-            <span class="nav-symbol">∿</span> EVOLUTION
-          </button>
           <button class="nav-item" id="openGovernanceNavBtn">
             <span class="nav-symbol">🛡️</span> GOVERNANCE
           </button>
@@ -161,17 +185,12 @@
         </nav>
 
         <div class="sidebar-footer">
-          <button class="nav-item footer-link" id="footerSettingsBtn">
-            <span class="nav-symbol">⚙️</span> SETTINGS
-          </button>
-          <button class="nav-item footer-link logout" id="logoutBtn">
-            <span class="nav-symbol">↪️</span> SIGN OUT
-          </button>
           <div class="system-status font-mono">
             <span class="pulse-dot"></span> System Standby
           </div>
         </div>
       </aside>
+
 
       <!-- Center Workspace (Intelligence Core) -->
       <main class="workspace-center">

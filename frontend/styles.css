@@ -361,9 +361,119 @@ body, html {
   display: flex;
   align-items: center;
   gap: 16px;
-  font-size: 12px;
-  color: var(--text-dim);
+  position: relative;
 }
+
+/* Profile Circle Avatar Button & Dropdown Menu */
+.profile-avatar-container {
+  position: relative;
+}
+
+.profile-avatar-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #0d1017;
+  font-weight: 700;
+  font-size: 13.5px;
+  font-family: var(--font-sans);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(45, 212, 191, 0.3);
+  transition: all 0.2s ease;
+}
+
+.profile-avatar-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 18px rgba(45, 212, 191, 0.5);
+}
+
+.profile-dropdown-menu {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  width: 220px;
+  background: rgba(13, 16, 23, 0.95);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 10px 0;
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-card);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+}
+
+.avatar-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  color: #0d1017;
+  font-weight: 700;
+  font-size: 12.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-white);
+}
+
+.profile-tier {
+  font-size: 10.5px;
+  color: var(--accent-cyan);
+}
+
+.menu-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 6px 0;
+}
+
+.profile-menu-item {
+  background: transparent;
+  border: none;
+  color: var(--text-light);
+  font-size: 12.5px;
+  padding: 8px 16px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.profile-menu-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-white);
+}
+
+.profile-menu-item.logout-item {
+  color: #f87171;
+}
+
+.profile-menu-item.logout-item:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
 
 .header-nav-link {
   background: transparent;

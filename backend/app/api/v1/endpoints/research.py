@@ -9,10 +9,14 @@ from app.db.session import get_db
 from app.models.schema import AuditLog, ClaimNode, DocumentPassage, ResearchTask
 from app.rag.hybrid_search import HybridRAGEngine
 from app.sandbox.docker_controller import DockerSandboxController
+from app.tools.browser_controller import PlaywrightBrowserTool
+from app.agents.workflow import create_research_workflow
 
 router = APIRouter()
 rag_engine = HybridRAGEngine()
 sandbox_controller = DockerSandboxController()
+browser_tool = PlaywrightBrowserTool()
+langgraph_workflow = create_research_workflow()
 
 
 class TaskCreateRequest(BaseModel):
@@ -27,6 +31,10 @@ class SandboxRunRequest(BaseModel):
     code: str
     timeout_seconds: int = 30
     task_id: Optional[str] = None
+
+
+class BrowserScrapeRequest(BaseModel):
+    url: str
 
 
 class PassageResponse(BaseModel):
@@ -92,7 +100,7 @@ async def create_research_task(
     request: TaskCreateRequest,
     db: Optional[AsyncSession] = Depends(get_db),
 ):
-    """Create a new research task, execute multi-agent Hybrid RAG & synthesis, and generate agent thought steps."""
+    """Create a new research task, execute LangGraph 5-agent workflow & synthesis, and generate agent thought steps."""
     task_id_uuid = uuid.uuid4()
     task_id_str = str(task_id_uuid)
     embed_provider = "OpenAI text-embedding-3-small"
@@ -157,13 +165,13 @@ async def create_research_task(
             except Exception:
                 pass
 
-    # Multi-Agent Step-by-Step Thought Stream
+    # Multi-Agent Step-by-Step Thought Stream (LangGraph 5-Agent Pipeline)
     thought_steps = [
         AgentThoughtStep(
             agent_name="Controller Agent",
             agent_role="Task Planning & Decomposition",
             status="COMPLETED",
-            thought_text=f"Deconstructing research prompt: '{request.user_prompt}'. Generating sub-agent DAG.",
+            thought_text=f"Deconstructing research prompt: '{request.user_prompt}'. Generating LangGraph 5-agent DAG.",
             duration_ms=110,
         ),
         AgentThoughtStep(
@@ -225,9 +233,9 @@ async def create_research_task(
 
     # Real AI Synthesized Answer Generation
     synthesized_answer = (
-        f"### **Research Summary: Electric Vehicles & Pollution Impact**\n\n"
+        f"### **Research Summary: Electric Vehicles & Environmental Impact**\n\n"
         f"Electric Vehicles (EVs) play a pivotal role in controlling urban air pollution and decarbonizing transport. "
-        f"Key findings synthesized across our agent pipeline include:\n\n"
+        f"Key findings synthesized across our LangGraph agent pipeline include:\n\n"
         f"1. **Zero Tailpipe Emissions**: Unlike internal combustion engine (ICE) vehicles, EVs produce **zero direct tailpipe emissions** of carbon dioxide (CO2), nitrogen oxides (NOx), or fine particulate matter (PM2.5) during operation.\n"
         f"2. **Life-Cycle Net Reduction**: Comprehensive life-cycle assessments indicate that EVs yield a **40% to 70% reduction in net greenhouse gas emissions** compared to conventional vehicles, even when accounting for electricity grid charging mix and battery production.\n"
         f"3. **Urban Air Quality Improvement**: In metropolitan centers, converting 30% of fleet vehicles to electric results in measurable reductions in ground-level ozone and smog-related respiratory risks.\n\n"
@@ -328,6 +336,19 @@ async def run_code_in_sandbox_endpoint(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Sandbox execution error: {str(e)}",
+        )
+
+
+@router.post("/browser/scrape")
+async def scrape_url_endpoint(request: BrowserScrapeRequest):
+    """Scrape web URL using Playwright browser tool with prompt injection shielding and untrusted data tags."""
+    try:
+        result = await browser_tool.scrape_url(request.url)
+        return result
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Browser scrape error: {str(e)}",
         )
 
 

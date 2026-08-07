@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AURA - Autonomous Unified Research Agent</title>
-  <meta name="description" content="AURA - Multi-Agent Autonomous Unified Research Agent with PgVector Cosine Search & Human-in-the-loop Governance">
+  <meta name="description" content="AURA - Autonomous Unified Research Agent with 5-Agent LangGraph Orchestration & Interactive Orb">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,169 +13,180 @@
   
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="dark-theme">
+<body class="monochrome-theme">
   
-  <!-- App Container -->
-  <div class="app-layout">
+  <!-- 3-Panel Main Layout according to hand-drawn architecture diagram -->
+  <div class="diagram-layout">
     
-    <!-- Top Navigation Header -->
-    <header class="top-nav">
-      <div class="nav-brand">
-        <div class="brand-sparkle">✦</div>
-        <h1 class="brand-title">AURA - Autonomous Unified Research Agent</h1>
+    <!-- Left Sidebar Navigation -->
+    <aside class="sidebar-left">
+      <div class="sidebar-header">
+        <div class="logo-circle">A</div>
+        <h2 class="logo-text">AURA</h2>
       </div>
 
-      <!-- Live Agent Status Indicators -->
-      <div class="agent-status-bar" id="agentStatusBar">
-        <div class="agent-pill active" title="Controller Agent">🤖 Controller</div>
-        <div class="agent-pill" id="pillEmbedding" title="Embedding Agent">🧠 Embedder</div>
-        <div class="agent-pill" id="pillRetrieval" title="Hybrid Retrieval Agent">🔍 Hybrid RAG</div>
-        <div class="agent-pill" id="pillClaim" title="Claim Verification Agent">🛡️ Claim Guard</div>
-        <div class="agent-pill" id="pillSandbox" title="Sandbox Execution Agent">🔒 Sandbox</div>
-        <div class="agent-pill" id="pillSynthesis" title="Synthesis Agent">✍️ Synthesizer</div>
-      </div>
-
-      <div class="nav-right">
-        <div class="status-pill" id="dbStatus">
-          <span class="status-dot online"></span>
-          <span class="status-text">Supabase PgVector</span>
-        </div>
-
-        <button class="drawer-btn" id="openDrawerBtn">
-          <span>🛡️ Governance & Audits</span>
-          <span class="badge" id="pendingClaimBadge">1</span>
+      <nav class="nav-menu">
+        <button class="nav-item active" data-tab="overview">
+          <span class="nav-icon">📊</span> Overview
         </button>
-      </div>
-    </header>
+        <button class="nav-item" data-tab="research">
+          <span class="nav-icon">🔍</span> Research
+        </button>
+        <button class="nav-item" data-tab="records">
+          <span class="nav-icon">📁</span> your Records
+        </button>
+        <button class="nav-item" data-tab="evolution">
+          <span class="nav-icon">🧬</span> Evolution
+        </button>
+        <button class="nav-item" data-tab="pattern">
+          <span class="nav-icon">🎨</span> Pattern studio
+        </button>
+      </nav>
 
-    <!-- Main Workspace Stream (ChatGPT / Gemini / DeepSeek Aesthetic) -->
-    <main class="chat-workspace">
+      <div class="sidebar-footer">
+        <div class="system-status">
+          <span class="pulse-dot"></span> System Standby
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center Workspace -->
+    <main class="workspace-center">
       
-      <!-- Welcome Hero / Feed Container -->
-      <div class="stream-container" id="streamContainer">
+      <!-- Top Center Area featuring the AURA Orb with 3 small internal holes -->
+      <div class="orb-container">
         
-        <div class="hero-box" id="heroBox">
-          <div class="hero-icon">✨</div>
-          <h2>What would you like to research today?</h2>
-          <p>AURA dispatches specialized AI agents: Controller, Dual Embedder, Hybrid PgVector RAG, Claim Verification, Sandbox Controller, and Synthesis Agent.</p>
-
-          <div class="prompt-suggestions">
-            <button class="suggestion-chip" onclick="fillPrompt('Tell me how much EV\'s are controlling pollution?')">
-              🌱 EV Air Pollution Reduction
-            </button>
-            <button class="suggestion-chip" onclick="fillPrompt('Analyze Supabase pgvector performance with NullPool connection pooling under high concurrent loads.')">
-              ⚡ Supabase PgVector Performance
-            </button>
-            <button class="suggestion-chip" onclick="fillPrompt('Verify Docker sandbox isolation resource limits for non-root Python execution.')">
-              🔒 Docker Sandbox Security
-            </button>
-          </div>
+        <!-- AURA Orb SVG Component (3 internal holes) -->
+        <div class="aura-orb state-idle" id="auraOrb" title="AURA Orb State: Idle">
+          <svg viewBox="0 0 100 100" class="orb-svg">
+            <circle cx="50" cy="50" r="44" class="orb-outer-ring" />
+            <circle cx="50" cy="50" r="40" class="orb-body" />
+            
+            <!-- 3 Small Internal Holes / Particles -->
+            <circle cx="40" cy="38" r="5" class="orb-hole hole-1" />
+            <circle cx="62" cy="42" r="5" class="orb-hole hole-2" />
+            <circle cx="48" cy="64" r="5" class="orb-hole hole-3" />
+            
+            <!-- Orbiting data particles for states -->
+            <circle cx="50" cy="15" r="2" class="orb-particle p-1" />
+            <circle cx="85" cy="50" r="2" class="orb-particle p-2" />
+            <circle cx="50" cy="85" r="2" class="orb-particle p-3" />
+          </svg>
         </div>
 
-        <!-- Research Stream Results & Multi-Agent Thinking Stream -->
-        <div class="results-feed hidden" id="resultsFeed"></div>
+        <div class="orb-meta">
+          <div class="orb-state-label" id="orbStateLabel">AURA State: Idle (Soft Breathing)</div>
+          <div class="live-activity-indicator">
+            <span class="blink-light"></span> Live Activity Stream
+          </div>
+        </div>
 
       </div>
 
-      <!-- Bottom Floating Input Console -->
-      <div class="bottom-input-bar">
-        <form id="researchForm" class="input-form">
-          
-          <div class="textarea-wrapper">
-            <textarea 
-              id="userPrompt" 
-              rows="2" 
-              placeholder="Ask AURA to research anything..." 
-              required
-            ></textarea>
-          </div>
+      <!-- Hero Prompt Title -->
+      <div class="center-hero" id="heroPrompt">
+        <h2>What would you like to understand?</h2>
+        <p>Ask AURA to research, analyze, scrape, or synthesize any objective.</p>
+      </div>
 
-          <div class="input-controls">
-            
-            <div class="control-pills">
-              <label class="pill-option active">
-                <input type="checkbox" id="hybridToggle" checked>
-                <span>⚡ Hybrid RRF</span>
-              </label>
-
-              <label class="pill-option active">
-                <input type="checkbox" id="claimGuardToggle" checked>
-                <span>🛡️ Claim Guard</span>
-              </label>
-
-              <div class="k-slider-box">
-                <span class="slider-label">Top-K: <strong id="topKVal">5</strong></span>
-                <input type="range" id="topKSlider" min="1" max="20" value="5">
-              </div>
-            </div>
-
-            <button type="submit" id="submitBtn" class="send-btn">
-              <span id="sendIcon">➔</span>
-              <span id="spinnerIcon" class="spinner hidden"></span>
-            </button>
-
-          </div>
+      <!-- Input Bar (Diagram Input Box) -->
+      <div class="input-section">
+        <form id="researchForm" class="diagram-input-box">
+          <input 
+            type="text" 
+            id="userPrompt" 
+            placeholder="Ask AURA anything..." 
+            autocomplete="off"
+            required
+          />
+          <button type="submit" id="submitBtn" class="send-icon-btn" title="Send Task">
+            ➔
+          </button>
         </form>
-        
-        <div class="disclaimer-text">
-          AURA - Autonomous Unified Research Agent • Multi-Agent Pipeline • PgVector Cosine Search • OpenAI & Gemini Fallback
-        </div>
+      </div>
+
+      <!-- Main Chat / Output Stream & Source Panel -->
+      <div class="output-stream-container" id="outputStreamContainer">
+        <div class="feed-list" id="resultsFeed"></div>
       </div>
 
     </main>
 
-  </div>
-
-  <!-- Interactive Human-in-the-Loop Permission Modal -->
-  <div class="modal-backdrop hidden" id="permissionModal">
-    <div class="permission-card">
-      <div class="permission-header">
-        <div class="perm-icon">⚠️</div>
-        <div>
-          <h3>Agent Permission Request</h3>
-          <p id="permAgentName">Sandbox Execution Agent</p>
-        </div>
-      </div>
-
-      <div class="permission-body">
-        <p id="permDescription">Agent requests permission to execute Docker Sandbox Python script in isolated container.</p>
-        <div class="perm-target" id="permTarget">Target: aura-agent-runner:latest container (512MB RAM, 1 CPU)</div>
-      </div>
-
-      <div class="permission-footer">
-        <button class="btn-deny" id="denyPermBtn">Deny Action</button>
-        <button class="btn-grant" id="grantPermBtn">Grant Permission</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Governance & Audit Log Slide-over Drawer -->
-  <div class="drawer-backdrop hidden" id="drawerBackdrop">
-    <aside class="slide-drawer">
+    <!-- Right Sidebar Profile & Live Metrics Panel -->
+    <aside class="sidebar-right">
       
-      <div class="drawer-header">
-        <div class="drawer-title">
-          <h3>Governance & Audit Stream</h3>
-          <p>Human-in-the-loop strategy approval & Supabase audit logs</p>
+      <!-- Top Profile / User Box -->
+      <div class="profile-box">
+        <div class="user-info">
+          <div class="avatar">👤</div>
+          <div>
+            <div class="user-name">User Account</div>
+            <div class="user-role">Research Director</div>
+          </div>
         </div>
-        <button class="close-btn" id="closeDrawerBtn">&times;</button>
+
+        <div class="profile-menu">
+          <button class="profile-link">lang: EN</button>
+          <button class="profile-link">theme: Dark</button>
+          <button class="profile-link">settings</button>
+          <button class="profile-link logout">logout</button>
+        </div>
       </div>
 
-      <div class="drawer-content">
-        
-        <div class="drawer-section">
-          <h4 class="section-heading">Pending Claim Verification</h4>
-          <div id="claimsContainer" class="claims-list"></div>
+      <!-- Metrics Panel (AURA Think, Evolution, Evaluation, Governance, Accuracy) -->
+      <div class="metrics-panel">
+        <h3 class="panel-heading">AURA System Metrics</h3>
+
+        <div class="metric-row">
+          <span class="metric-label">AURA Think</span>
+          <span class="metric-val" id="metricThink">Active (OpenAI)</span>
         </div>
 
-        <div class="drawer-section">
-          <h4 class="section-heading">Live System Audit Logs</h4>
-          <div id="auditLogsContainer" class="audit-list"></div>
+        <div class="metric-row">
+          <span class="metric-label">Evolution</span>
+          <span class="metric-val" id="metricEvolution">v1.0.4 Patch</span>
         </div>
 
+        <div class="metric-row">
+          <span class="metric-label">Evaluation</span>
+          <span class="metric-val" id="metricEvaluation">Gemini 1.5 Flash</span>
+        </div>
+
+        <div class="metric-row">
+          <span class="metric-label">Governance</span>
+          <span class="metric-val status-ok" id="metricGovernance">Rule Check OK</span>
+        </div>
+
+        <div class="metric-row">
+          <span class="metric-label">Accuracy</span>
+          <span class="metric-val" id="metricAccuracy">96.4% Entailment</span>
+        </div>
+
+        <div class="langgraph-card">
+          <div class="lg-title">LangGraph 5-Agent DAG</div>
+          <div class="lg-step">1. Planner Agent</div>
+          <div class="lg-step">2. Sandbox Executor</div>
+          <div class="lg-step">3. Live RAG Evidence</div>
+          <div class="lg-step">4. Critic Evolution</div>
+          <div class="lg-step">5. Governance Gatekeeper</div>
+        </div>
       </div>
 
     </aside>
+
+  </div>
+
+  <!-- Permission Modal for Sandbox & Web Scraping Actions -->
+  <div class="modal-backdrop hidden" id="permissionModal">
+    <div class="permission-dialog">
+      <div class="perm-title">⚠️ Human-in-the-Loop Action Required</div>
+      <p id="permDescription">Sandbox Agent requests permission to run python script in Docker Sandbox.</p>
+      <div class="perm-target" id="permTarget">Target: aura-agent-runner:latest container (512MB RAM)</div>
+      <div class="perm-buttons">
+        <button class="btn-deny" id="denyPermBtn">Deny</button>
+        <button class="btn-allow" id="grantPermBtn">Grant Permission</button>
+      </div>
+    </div>
   </div>
 
   <script src="app.js"></script>

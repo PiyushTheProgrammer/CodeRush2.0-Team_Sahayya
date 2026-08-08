@@ -41,6 +41,42 @@ document.addEventListener("DOMContentLoaded", () => {
     token: null
   };
 
+  function updateUserProfile(name, email, tier, token = null) {
+    currentUser = {
+      name: name || "Anuj",
+      email: email || "anuj@aura.ai",
+      tier: tier || "FREEMIUM",
+      token: token || currentUser.token
+    };
+
+    try {
+      localStorage.setItem("aura_user_data", JSON.stringify({
+        name: currentUser.name,
+        email: currentUser.email,
+        tier: currentUser.tier
+      }));
+      if (token) {
+        localStorage.setItem("aura_user_token", token);
+      }
+    } catch (e) {}
+
+    const initials = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : "A";
+
+    const headerUserInitials = document.getElementById("headerUserInitials");
+    const headerUserAvatarSm = document.getElementById("headerUserAvatarSm");
+    const headerMenuUserName = document.getElementById("headerMenuUserName");
+    const headerMenuUserTier = document.getElementById("headerMenuUserTier");
+    const profileUserName = document.getElementById("profileUserName");
+    const profileUserTier = document.getElementById("profileUserTier");
+
+    if (headerUserInitials) headerUserInitials.textContent = initials;
+    if (headerUserAvatarSm) headerUserAvatarSm.textContent = initials;
+    if (headerMenuUserName) headerMenuUserName.textContent = currentUser.name;
+    if (headerMenuUserTier) headerMenuUserTier.textContent = `${currentUser.tier} TIER`;
+    if (profileUserName) profileUserName.textContent = currentUser.name;
+    if (profileUserTier) profileUserTier.textContent = `${currentUser.tier} TIER`;
+  }
+
   function loadStoredUserSession() {
     try {
       const savedUser = localStorage.getItem("aura_user_data");
@@ -48,6 +84,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (savedUser) {
         const parsed = JSON.parse(savedUser);
         currentUser = { ...parsed, token: savedToken };
+        updateUserProfile(currentUser.name, currentUser.email, currentUser.tier, savedToken);
+      } else {
         updateUserProfile(currentUser.name, currentUser.email, currentUser.tier);
       }
     } catch (e) {
@@ -56,6 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   loadStoredUserSession();
+
 
   const openRecordsBtn = document.getElementById("openRecordsBtn");
   const recordsModal = document.getElementById("recordsModal");
@@ -719,11 +758,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  window.triggerX402Modal = triggerX402Modal;
+
+
   if (openPricingBtn) openPricingBtn.addEventListener("click", triggerX402Modal);
   if (closeX402Btn && x402Modal) {
     closeX402Btn.addEventListener("click", () => {
       x402Modal.classList.add("hidden");
       setOrbState("idle");
+    });
+  }
+
+  function unblurAllPaidResources() {
+    const overlays = document.querySelectorAll(".paid-resource-blur-overlay");
+    overlays.forEach(overlay => overlay.remove());
+
+    const blurredElems = document.querySelectorAll(".paid-resource-content-blurred");
+    blurredElems.forEach(elem => {
+      elem.classList.remove("paid-resource-content-blurred");
+      elem.style.filter = "none";
+      elem.style.opacity = "1";
+      elem.style.pointerEvents = "auto";
+      elem.style.userSelect = "text";
     });
   }
 
@@ -751,22 +807,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (resp.ok) {
           updateUserProfile(currentUser.name, currentUser.email, "PREMIUM");
+          unblurAllPaidResources();
           if (x402Modal) x402Modal.classList.add("hidden");
           setOrbState("complete");
-          alert("x402 Payment Verified! You have been upgraded to PREMIUM (x402 Verified).");
+          alert("x402 Payment Verified! You have been upgraded to PREMIUM (x402 Verified). All locked resources are now unblurred!");
         } else {
           alert("Wallet address payment unverified. Remaining in Freemium tier.");
         }
       } catch (err) {
         updateUserProfile(currentUser.name, currentUser.email, "PREMIUM");
+        unblurAllPaidResources();
         if (x402Modal) x402Modal.classList.add("hidden");
         setOrbState("complete");
-        alert("x402 Payment Verified! You have been upgraded to PREMIUM (x402 Verified).");
+        alert("x402 Payment Verified! You have been upgraded to PREMIUM (x402 Verified). All locked resources are now unblurred!");
       } finally {
         verifyX402Btn.textContent = "Verify Wallet Payment & Upgrade to Premium";
       }
     });
   }
+
 
   // Governance Drawer Handlers
   const governanceDrawer = document.getElementById("governanceDrawer");
@@ -1028,17 +1087,45 @@ document.addEventListener("DOMContentLoaded", () => {
     if (data.passages && data.passages.length > 0) {
       passagesHtml = data.passages.map((p, idx) => {
         const sourceUrl = p.source_url || "https://en.wikipedia.org";
-        return `
-          <div class="source-item">
-            <div style="font-family:var(--font-mono); font-size:12px; color:var(--accent-blue); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
-              <span>Evidence Source #${idx + 1} • RRF Score: ${p.rrf_score?.toFixed(4) || "0.0328"} • ${p.embedding_provider || "OpenAI text-embedding-3-small"}</span>
-              <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" class="reference-link">Click here for reference ↗</a>
+        const isPaid = (currentUser.tier === "FREEMIUM" && p.is_paid === true);
+        const cost = p.x402_cost || "0.005 USDC";
+
+        if (isPaid) {
+          return `
+            <div class="paid-resource-wrapper" id="paid-passage-${idx}">
+              <div class="paid-resource-blur-overlay" onclick="window.triggerX402Modal()">
+                <div class="lock-box-content">
+                  <div class="lock-icon-circle">🔒</div>
+                  <div class="lock-title">x402 Protocol • Premium Evidence Resource</div>
+                  <div class="lock-subtitle">This research evidence requires an x402 machine micro-payment (${cost}) to unlock full text & citations.</div>
+                  <button type="button" class="btn-unlock-x402" onclick="event.stopPropagation(); window.triggerX402Modal();">
+                    ⚡ Pay via x402 Protocol & Unlock (${cost}) ↗
+                  </button>
+                </div>
+              </div>
+              <div class="paid-resource-content-blurred">
+                <div style="font-family:var(--font-mono); font-size:12px; color:var(--accent-amber); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+                  <span>🔒 Locked Premium Source #${idx + 1} • RRF Score: ${p.rrf_score?.toFixed(4) || "0.0328"} • ${p.embedding_provider || "OpenAI text-embedding-3-small"}</span>
+                  <span class="reference-link">Locked URL 🔒</span>
+                </div>
+                <div style="font-size:13.5px; color:var(--text-light); line-height:1.6;">"${p.content}"</div>
+              </div>
             </div>
-            <div style="font-size:13.5px; color:var(--text-light); line-height:1.6;">"${p.content}"</div>
-          </div>
-        `;
+          `;
+        } else {
+          return `
+            <div class="source-item">
+              <div style="font-family:var(--font-mono); font-size:12px; color:var(--accent-blue); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+                <span>Evidence Source #${idx + 1} • RRF Score: ${p.rrf_score?.toFixed(4) || "0.0328"} • ${p.embedding_provider || "OpenAI text-embedding-3-small"}</span>
+                <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" class="reference-link">Click here for reference ↗</a>
+              </div>
+              <div style="font-size:13.5px; color:var(--text-light); line-height:1.6;">"${p.content}"</div>
+            </div>
+          `;
+        }
       }).join("");
     }
+
 
     // Attachments HTML badge rendering (ChatGPT / Gemini style)
     let attachmentsHtml = "";

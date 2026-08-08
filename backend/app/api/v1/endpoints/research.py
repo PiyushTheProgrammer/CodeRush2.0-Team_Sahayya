@@ -60,6 +60,10 @@ class PassageResponse(BaseModel):
     freshness_score: Optional[float] = None
     embedding_provider: Optional[str] = None
     tokens: List[str] = []
+    is_paid: bool = False
+    access_level: str = "FREE"
+    x402_cost: str = "0.005 USDC"
+
 
 
 class ClaimResponse(BaseModel):
@@ -352,9 +356,13 @@ async def create_research_task(
             freshness_score=p["freshness_score"],
             embedding_provider=p["embedding_provider"],
             tokens=p["tokens"],
+            is_paid=p.get("is_paid", (idx % 2 == 1 if len(passages_data) > 1 else False)),
+            access_level="PREMIUM" if p.get("is_paid", (idx % 2 == 1 if len(passages_data) > 1 else False)) else "FREE",
+            x402_cost="0.005 USDC"
         )
-        for p in passages_data
+        for idx, p in enumerate(passages_data)
     ]
+
 
     audit_logs = [
         AuditLogResponse(

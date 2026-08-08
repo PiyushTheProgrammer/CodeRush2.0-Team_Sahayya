@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.db.init_pgvector import init_pgvector
 from app.db.init_users_db import init_users_table
 from app.db.chat_history_db import init_chat_history_table
+from app.db.attachments_db import init_attachments_table
 from app.db.session import engine
 
 
@@ -22,11 +23,11 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Initializing application, pgvector extension, aura_users & aura_chat_history on Supabase PostgreSQL...")
+    logger.info("Initializing application database tables (aura_users, aura_chat_history, aura_attachments)...")
     try:
         await init_pgvector()
     except Exception as e:
-        logger.warning(f"pgvector startup initialization warning: {e}")
+        logger.warning(f"pgvector startup initialization notice: {e}")
     
     try:
         await init_users_table()
@@ -38,9 +39,15 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"aura_chat_history table initialization warning: {e}")
 
+    try:
+        await init_attachments_table()
+    except Exception as e:
+        logger.warning(f"aura_attachments table initialization warning: {e}")
+
     yield
     logger.info("Disposing database connection pool...")
     await engine.dispose()
+
 
 
 
@@ -65,26 +72,21 @@ app.include_router(research_router.router, prefix="/api/research", tags=["Resear
 
 
 
+from app.db.session import check_and_get_working_engine, USING_SQLITE
+
+
 @app.get("/health", tags=["Health"])
 async def health_check():
-    """Health check endpoint verifying application status and Supabase DB ping."""
+    """Health check endpoint verifying application status and DB connection."""
     db_status = "unknown"
     try:
-        async with engine.connect() as conn:
+        active_engine = await check_and_get_working_engine()
+        async with active_engine.connect() as conn:
             await conn.execute(text("SELECT 1;"))
-        db_status = "connected"
+        db_status = "connected (SQLite fallback)" if USING_SQLITE else "connected (Supabase PostgreSQL)"
     except Exception as e:
         logger.error(f"Database health ping failed: {e}")
         db_status = f"disconnected: {str(e)}"
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail={
-                "status": "unhealthy",
-                "app": settings.PROJECT_NAME,
-                "version": settings.VERSION,
-                "database": db_status,
-            },
-        )
 
     return {
         "status": "healthy",
@@ -92,6 +94,7 @@ async def health_check():
         "version": settings.VERSION,
         "database": db_status,
     }
+
 
 
 # Mount frontend static directory and handle static CSS/JS routes

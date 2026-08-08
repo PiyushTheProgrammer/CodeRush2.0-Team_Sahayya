@@ -70,22 +70,37 @@ async def synthesize_speech_output(request: SpeechSynthesisRequest):
     )
 
 
+from app.db.attachments_db import save_attachment_db
+
+
 @router.post("/context/upload", response_model=ContextUploadResponse)
 async def upload_research_context_file(
     file: UploadFile = File(...),
+    user_email: Optional[str] = Form("anuj@aura.ai")
 ):
     """
     Backend Research Context Attachment Endpoint:
-    Receives PDF, TXT, CSV, or code files, extracts text, chunks passages, and indexes into vector memory.
+    Receives PDF, TXT, CSV, or code files, extracts text, chunks passages, and indexes into vector memory & database.
     """
     file_id = f"file-{uuid.uuid4().hex[:10]}"
     contents = await file.read()
     file_size = len(contents)
     filename = file.filename or "attached_document.pdf"
 
-    logger.info(f"Received context attachment file '{filename}' ({file_size} bytes). Processing text extraction & vector indexing...")
+    logger.info(f"Received context attachment file '{filename}' ({file_size} bytes) for user '{user_email}'. Processing text extraction & vector indexing...")
 
     passage_count = max(1, file_size // 400)
+    summary_text = f"Successfully extracted {passage_count} passages from '{filename}' into AURA context memory."
+
+    # Save to Database
+    await save_attachment_db(
+        file_id=file_id,
+        user_email=user_email or "anuj@aura.ai",
+        filename=filename,
+        file_size_bytes=file_size,
+        extracted_passages_count=passage_count,
+        summary=summary_text
+    )
 
     return ContextUploadResponse(
         file_id=file_id,
@@ -93,5 +108,6 @@ async def upload_research_context_file(
         file_size_bytes=file_size,
         extracted_passages_count=passage_count,
         vector_indexed=True,
-        summary=f"Successfully extracted {passage_count} passages from '{filename}' into AURA context memory.",
+        summary=summary_text,
     )
+

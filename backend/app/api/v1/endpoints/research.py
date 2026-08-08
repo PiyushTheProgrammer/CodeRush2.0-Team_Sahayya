@@ -36,6 +36,9 @@ class TaskCreateRequest(BaseModel):
     hybrid_search: bool = True
     self_evolve: bool = True
     claim_verification: bool = True
+    user_email: Optional[str] = "anuj@aura.ai"
+    attachments: Optional[List[Dict[str, Any]]] = []
+
 
 
 class SandboxRunRequest(BaseModel):
@@ -390,21 +393,24 @@ async def create_research_task(
     )
 
 
-    # 8. Save Research Session into Supabase PostgreSQL aura_chat_history table
+    # 8. Save Research Session into Database aura_chat_history table
     try:
         passages_json_str = json.dumps([p.model_dump() for p in formatted_passages])
         claims_json_str = json.dumps([c.model_dump() for c in claims])
+        attachments_json_str = json.dumps(request.attachments or [])
         await save_chat_session_db(
             task_id=task_id_str,
-            user_email="anuj@aura.ai",
+            user_email=request.user_email or "anuj@aura.ai",
             user_prompt=request.user_prompt,
             synthesized_answer=synthesized_answer,
             passages_json=passages_json_str,
             claims_json=claims_json_str,
+            attachments_json=attachments_json_str,
             is_saved=False
         )
     except Exception as e:
-        logger.warning(f"Failed to auto-persist chat session into Supabase PostgreSQL: {e}")
+        logger.warning(f"Failed to auto-persist chat session into database: {e}")
+
 
     return TaskExecutionResponse(
         task_id=task_id_str,

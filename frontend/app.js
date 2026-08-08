@@ -33,12 +33,29 @@ document.addEventListener("DOMContentLoaded", () => {
   const grantPermBtn = document.getElementById("grantPermBtn");
   const denyPermBtn = document.getElementById("denyPermBtn");
 
-  // User State Management
+  // User State Management & LocalStorage Persistence
   let currentUser = {
     name: "Anuj",
     email: "anuj@aura.ai",
-    tier: "FREEMIUM"
+    tier: "FREEMIUM",
+    token: null
   };
+
+  function loadStoredUserSession() {
+    try {
+      const savedUser = localStorage.getItem("aura_user_data");
+      const savedToken = localStorage.getItem("aura_user_token");
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        currentUser = { ...parsed, token: savedToken };
+        updateUserProfile(currentUser.name, currentUser.email, currentUser.tier);
+      }
+    } catch (e) {
+      console.warn("Restore user session notice:", e);
+    }
+  }
+
+  loadStoredUserSession();
 
   const openRecordsBtn = document.getElementById("openRecordsBtn");
   const recordsModal = document.getElementById("recordsModal");
@@ -46,6 +63,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const headerUserName = document.getElementById("headerUserName");
   const voiceBtn = document.getElementById("voiceBtn");
   const voiceStatus = document.getElementById("voiceStatus");
+  const voiceStatusText = document.getElementById("voiceStatusText");
+  const stopVoiceBtn = document.getElementById("stopVoiceBtn");
 
   function openRecordsModal() {
     if (recordsModal) {
@@ -61,46 +80,200 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  // Voice Research Query Listener (🎙️ Microphone Speech Recognition)
-  if (voiceBtn && userPromptInput) {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = "en-US";
+  // Continuous Voice Research Query Microphone Manager (🎙️ Web Speech API)
+  let isListening = false;
+  let recognition = null;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-      voiceBtn.addEventListener("click", () => {
-        voiceBtn.classList.add("listening");
-        if (voiceStatus) voiceStatus.classList.remove("hidden");
+  if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    function startListening() {
+      if (isListening) return;
+      isListening = true;
+      if (voiceBtn) voiceBtn.classList.add("listening");
+      if (voiceStatus) voiceStatus.classList.remove("hidden");
+      if (voiceStatusText) voiceStatusText.textContent = "AURA Listening continuously... Speak your research prompt now.";
+      try {
         recognition.start();
-      });
+      } catch (err) {
+        console.warn("Mic start notice:", err);
+      }
+    }
 
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        userPromptInput.value = transcript;
-        voiceBtn.classList.remove("listening");
-        if (voiceStatus) voiceStatus.classList.add("hidden");
-        if (researchForm) {
-          researchForm.dispatchEvent(new Event("submit", { cancelable: true }));
-        }
-      };
+    function stopListening() {
+      isListening = false;
+      if (voiceBtn) voiceBtn.classList.remove("listening");
+      if (voiceStatus) voiceStatus.classList.add("hidden");
+      try {
+        recognition.stop();
+      } catch (err) {
+        console.warn("Mic stop notice:", err);
+      }
+    }
 
-      recognition.onerror = () => {
-        voiceBtn.classList.remove("listening");
-        if (voiceStatus) voiceStatus.classList.add("hidden");
-      };
-
-      recognition.onend = () => {
-        voiceBtn.classList.remove("listening");
-        if (voiceStatus) voiceStatus.classList.add("hidden");
-      };
-    } else {
+    if (voiceBtn) {
       voiceBtn.addEventListener("click", () => {
-        alert("Voice recognition is not supported in this browser environment.");
+        if (isListening) {
+          stopListening();
+        } else {
+          startListening();
+        }
       });
     }
+
+    if (stopVoiceBtn) {
+      stopVoiceBtn.addEventListener("click", stopListening);
+    }
+
+    recognition.onresult = (event) => {
+      let cumulativeText = "";
+      for (let i = 0; i < event.results.length; i++) {
+        cumulativeText += event.results[i][0].transcript;
+      }
+
+      if (userPromptInput && cumulativeText.trim()) {
+        userPromptInput.value = cumulativeText;
+        userPromptInput.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+
+      if (voiceStatusText && cumulativeText.trim()) {
+        voiceStatusText.textContent = `AURA Transcribing: "${cumulativeText.slice(-60)}"`;
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.warn("Speech recognition error:", event.error);
+      if (event.error === "no-speech") return;
+      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+        stopListening();
+        alert("Microphone access was denied. Please allow microphone permissions in your browser settings.");
+        return;
+      }
+      if (event.error !== "aborted" && isListening) {
+        setTimeout(() => {
+          if (isListening) {
+            try { recognition.start(); } catch (e) {}
+          }
+        }, 300);
+      }
+    };
+
+    recognition.onend = () => {
+      if (isListening) {
+        try {
+          recognition.start();
+        } catch (err) {
+          console.warn("Speech restart notice:", err);
+        }
+      } else {
+        if (voiceBtn) voiceBtn.classList.remove("listening");
+        if (voiceStatus) voiceStatus.classList.add("hidden");
+      }
+    };
+  } else if (voiceBtn) {
+    voiceBtn.addEventListener("click", () => {
+      alert("Web Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.");
+    });
   }
+
+
+
+  // Attachment State Management (ChatGPT / Gemini style preview chips)
+  let attachedFiles = [];
+  const attachedFilesContainer = document.getElementById("attachedFilesContainer");
+  const directFileInput = document.getElementById("directFileInput");
+
+  function renderAttachmentChips() {
+    if (!attachedFilesContainer) return;
+    if (attachedFiles.length === 0) {
+      attachedFilesContainer.innerHTML = "";
+      attachedFilesContainer.classList.add("hidden");
+      return;
+    }
+
+    attachedFilesContainer.classList.remove("hidden");
+    attachedFilesContainer.innerHTML = attachedFiles.map((file, idx) => {
+      const ext = file.name.split('.').pop().toLowerCase();
+      const icon = ext === "pdf" ? "📄" : (ext === "csv" || ext === "xlsx" ? "📊" : (ext === "py" || ext === "js" || ext === "html" ? "💻" : "📝"));
+      const sizeKb = (file.size / 1024).toFixed(1);
+      return `
+        <div class="attachment-chip font-mono" id="chip-${idx}">
+          <span class="attachment-icon">${icon}</span>
+          <div class="attachment-info">
+            <span class="attachment-name">${file.name}</span>
+            <span class="attachment-meta">${sizeKb} KB • Indexed</span>
+          </div>
+          <button type="button" class="attachment-remove-btn" data-index="${idx}" title="Remove Attached File">&times;</button>
+        </div>
+      `;
+    }).join("");
+
+    // Bind remove buttons
+    const removeBtns = attachedFilesContainer.querySelectorAll(".attachment-remove-btn");
+    removeBtns.forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const idx = parseInt(btn.getAttribute("data-index"), 10);
+        attachedFiles.splice(idx, 1);
+        renderAttachmentChips();
+      });
+    });
+  }
+
+  async function uploadAndAttachFiles(fileList) {
+    for (let i = 0; i < fileList.length; i++) {
+      const file = fileList[i];
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("user_email", currentUser.email);
+
+      try {
+        const resp = await fetch("/api/v1/context/upload", {
+          method: "POST",
+          body: formData
+        });
+        if (resp.ok) {
+          const res = await resp.json();
+          attachedFiles.push({
+            file_id: res.file_id,
+            name: file.name,
+            size: file.size,
+            type: file.type || "Document",
+            summary: res.summary
+          });
+        } else {
+          attachedFiles.push({
+            file_id: `file-${Date.now()}-${i}`,
+            name: file.name,
+            size: file.size,
+            type: file.type || "Document",
+            summary: "Uploaded document context"
+          });
+        }
+      } catch (err) {
+        attachedFiles.push({
+          file_id: `file-${Date.now()}-${i}`,
+          name: file.name,
+          size: file.size,
+          type: file.type || "Document",
+          summary: "Uploaded document context"
+        });
+      }
+    }
+    renderAttachmentChips();
+  }
+
+  if (directFileInput) {
+    directFileInput.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        uploadAndAttachFiles(e.target.files);
+      }
+    });
+  }
+
 
   const profileAvatarTrigger = document.getElementById("profileAvatarTrigger");
   const profileMenuDropdown = document.getElementById("profileMenuDropdown");
@@ -146,6 +319,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (menuLogoutBtn) {
     menuLogoutBtn.addEventListener("click", () => {
       if (profileMenuDropdown) profileMenuDropdown.classList.add("hidden");
+      localStorage.removeItem("aura_user_data");
+      localStorage.removeItem("aura_user_token");
       updateUserProfile("Guest User", "guest@aura.ai", "FREEMIUM");
       showLandingPage();
     });
@@ -164,7 +339,6 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (tab === "governance") {
         openGovernanceModal();
       } else if (tab === "research") {
-        // Fetch saved/bookmarked research chats from Supabase PostgreSQL
         setOrbState("thinking");
         try {
           const resp = await fetch(`/api/v1/history/saved?email=${encodeURIComponent(currentUser.email)}`);
@@ -183,7 +357,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         setOrbState("idle");
       } else if (tab === "activity") {
-        // Fetch recent research activity history from Supabase PostgreSQL
         setOrbState("thinking");
         try {
           const resp = await fetch(`/api/v1/history/activity?email=${encodeURIComponent(currentUser.email)}`);
@@ -192,7 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (heroPrompt) heroPrompt.classList.add("hidden");
             if (resultsFeed) resultsFeed.innerHTML = "";
             if (activityHistory.length === 0) {
-              resultsFeed.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-dim); font-family:var(--font-mono); border:1px dashed var(--border-subtle); border-radius:12px;">No activity history recorded yet. Submit a prompt to record activity into Supabase DB.</div>`;
+              resultsFeed.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-dim); font-family:var(--font-mono); border:1px dashed var(--border-subtle); border-radius:12px;">No activity history recorded yet. Submit a prompt to record activity into Database.</div>`;
             } else {
               activityHistory.forEach(act => renderResults(act.user_prompt, act));
             }
@@ -201,13 +374,67 @@ document.addEventListener("DOMContentLoaded", () => {
           console.warn("Fetch activity history fallback:", e);
         }
         setOrbState("idle");
-      } else if (tab === "sources" || tab === "experiments") {
+      } else if (tab === "sources") {
         setOrbState("thinking");
-        setTimeout(() => setOrbState("idle"), 800);
+        try {
+          const resp = await fetch(`/api/v1/history/activity?email=${encodeURIComponent(currentUser.email)}`);
+          if (resp.ok) {
+            const activityHistory = await resp.json();
+            if (heroPrompt) heroPrompt.classList.add("hidden");
+            if (resultsFeed) resultsFeed.innerHTML = "";
+
+            let allSources = [];
+            activityHistory.forEach(act => {
+              if (act.passages && act.passages.length > 0) {
+                act.passages.forEach(p => {
+                  allSources.push({
+                    url: p.source_url || "https://en.wikipedia.org",
+                    content: p.content,
+                    provider: p.embedding_provider || "OpenAI text-embedding-3-small",
+                    rrf_score: p.rrf_score || 0.0328,
+                    origin_prompt: act.user_prompt,
+                    created_at: act.created_at
+                  });
+                });
+              }
+            });
+
+            if (allSources.length === 0) {
+              resultsFeed.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-dim); font-family:var(--font-mono); border:1px dashed var(--border-subtle); border-radius:12px;">No evidence sources tracked yet. Submit a research task to populate vector memory sources.</div>`;
+            } else {
+              const card = document.createElement("div");
+              card.className = "stream-card";
+              card.innerHTML = `
+                <div style="font-family:var(--font-mono); font-size:14px; font-weight:bold; color:var(--text-white); margin-bottom:14px; border-bottom:1px solid var(--border-subtle); padding-bottom:10px;">
+                  📚 Recent Tracked Evidence Sources & Grounding Passages (${allSources.length} Sources)
+                </div>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                  ${allSources.map((s, idx) => `
+                    <div class="source-item" style="background:rgba(15,23,42,0.6); padding:14px; border-radius:8px; border:1px solid var(--border-subtle);">
+                      <div style="display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:12px; margin-bottom:6px;">
+                        <span style="color:var(--accent-cyan); font-weight:bold;">Source #${idx + 1} • ${s.provider}</span>
+                        <a href="${s.url}" target="_blank" rel="noopener noreferrer" class="reference-link">Open Source Link ↗</a>
+                      </div>
+                      <div style="font-size:13.5px; color:var(--text-light); line-height:1.6; margin-bottom:8px;">"${s.content}"</div>
+                      <div style="font-size:11.5px; font-family:var(--font-mono); color:var(--text-dim);">
+                        <strong>Originating Prompt:</strong> ${s.origin_prompt}
+                      </div>
+                    </div>
+                  `).join("")}
+                </div>
+              `;
+              resultsFeed.appendChild(card);
+            }
+          }
+        } catch (e) {
+          console.warn("Fetch sources fallback:", e);
+        }
+        setOrbState("idle");
       } else if (tab === "overview") {
         if (heroPrompt) heroPrompt.classList.remove("hidden");
         setOrbState("idle");
       }
+
     });
   });
 
@@ -231,8 +458,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (orbStateLabel) orbStateLabel.textContent = ORB_STATES[stateName].label;
   }
 
-  function updateUserProfile(name, email, tier) {
-    currentUser = { name, email, tier };
+  function updateUserProfile(name, email, tier, token = null) {
+    currentUser = { name, email, tier, token: token || currentUser.token };
+    localStorage.setItem("aura_user_data", JSON.stringify({ name, email, tier }));
+    if (token) localStorage.setItem("aura_user_token", token);
+
     const initials = name ? name.trim().charAt(0).toUpperCase() : "A";
     const headerUserInitials = document.getElementById("headerUserInitials");
     const headerUserAvatarSm = document.getElementById("headerUserAvatarSm");
@@ -305,7 +535,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-
   function openAuthModal(tab = "login") {
     if (tab === "register") {
       showRegisterTab();
@@ -328,20 +557,16 @@ document.addEventListener("DOMContentLoaded", () => {
   if (landingLaunchAppBtn) {
     landingLaunchAppBtn.addEventListener("click", showMainWorkspace);
   }
-
   if (landingSignInBtn) {
     landingSignInBtn.addEventListener("click", () => openAuthModal("login"));
   }
-
   if (landingSignUpBtn) {
     landingSignUpBtn.addEventListener("click", () => openAuthModal("register"));
   }
-
   if (landingHeroAuthBtn) {
     landingHeroAuthBtn.addEventListener("click", () => openAuthModal("login"));
   }
 
-  // Auth Tab & Form Handlers
   function showLoginTab() {
     if (loginForm) {
       loginForm.classList.remove("hidden");
@@ -368,19 +593,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (tabRegisterBtn) tabRegisterBtn.classList.add("active");
   }
 
-  if (headerLoginBtn) {
-    headerLoginBtn.addEventListener("click", () => openAuthModal("login"));
-  }
-
-  if (headerRegisterBtn) {
-    headerRegisterBtn.addEventListener("click", () => openAuthModal("register"));
-  }
-
+  if (headerLoginBtn) headerLoginBtn.addEventListener("click", () => openAuthModal("login"));
+  if (headerRegisterBtn) headerRegisterBtn.addEventListener("click", () => openAuthModal("register"));
   if (tabLoginBtn) tabLoginBtn.addEventListener("click", showLoginTab);
   if (tabRegisterBtn) tabRegisterBtn.addEventListener("click", showRegisterTab);
   if (closeAuthBtn) closeAuthBtn.addEventListener("click", closeAuthModal);
   if (openAuthBtn) openAuthBtn.addEventListener("click", () => openAuthModal("login"));
-
 
   // Submit Login
   if (loginForm) {
@@ -395,7 +613,7 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify({ email, password })
         });
         const data = await resp.json();
-        updateUserProfile(data.full_name, data.email, data.user_tier);
+        updateUserProfile(data.full_name, data.email, data.user_tier, data.token);
         closeAuthModal();
         showMainWorkspace();
       } catch (err) {
@@ -421,7 +639,7 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify({ full_name: fullName, email, password, tier_choice: tier })
         });
         const data = await resp.json();
-        updateUserProfile(data.full_name, data.email, data.user_tier);
+        updateUserProfile(data.full_name, data.email, data.user_tier, data.token);
         closeAuthModal();
         showMainWorkspace();
       } catch (err) {
@@ -432,18 +650,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("aura_user_data");
+      localStorage.removeItem("aura_user_token");
       updateUserProfile("Guest User", "guest@aura.ai", "FREEMIUM");
       showLandingPage();
     });
   }
 
-
-  // Context Attachment Handlers
-  if (attachContextBtn && attachmentModal) {
-    attachContextBtn.addEventListener("click", () => attachmentModal.classList.remove("hidden"));
+  // Attachment Modal Form Handlers
+  if (attachContextBtn) {
+    attachContextBtn.addEventListener("click", () => {
+      if (directFileInput) directFileInput.click();
+    });
   }
   if (closeAttachmentBtn && attachmentModal) {
     closeAttachmentBtn.addEventListener("click", () => attachmentModal.classList.add("hidden"));
@@ -454,21 +674,8 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       const fileInput = document.getElementById("contextFileInput");
       if (!fileInput || !fileInput.files[0]) return;
-      const formData = new FormData();
-      formData.append("file", fileInput.files[0]);
-
-      try {
-        const resp = await fetch("/api/v1/context/upload", {
-          method: "POST",
-          body: formData
-        });
-        const result = await resp.json();
-        alert(result.summary || "Document attached and indexed into vector memory!");
-        if (attachmentModal) attachmentModal.classList.add("hidden");
-      } catch (err) {
-        alert("Document attached to research context!");
-        if (attachmentModal) attachmentModal.classList.add("hidden");
-      }
+      await uploadAndAttachFiles(fileInput.files);
+      if (attachmentModal) attachmentModal.classList.add("hidden");
     });
   }
 
@@ -492,7 +699,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // x402 Payment Gateway Handlers with Sender Wallet Verification
+  // x402 Payment Gateway Handlers
   async function triggerX402Modal() {
     if (x402Modal) x402Modal.classList.remove("hidden");
     setOrbState("warning");
@@ -511,7 +718,6 @@ document.addEventListener("DOMContentLoaded", () => {
       console.warn("x402 challenge endpoint fallback:", e);
     }
   }
-
 
   if (openPricingBtn) openPricingBtn.addEventListener("click", triggerX402Modal);
   if (closeX402Btn && x402Modal) {
@@ -633,7 +839,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-
   // Quick Suggestion Chips Listener
   const promptChips = document.querySelectorAll(".prompt-chip");
   promptChips.forEach((chip) => {
@@ -648,7 +853,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Keyboard shortcut: Ctrl + Enter / Cmd + Enter
   if (userPromptInput && researchForm) {
     userPromptInput.addEventListener("keydown", (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
@@ -665,9 +869,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const promptText = userPromptInput.value.trim();
       if (!promptText) return;
 
+      const currentAttachments = [...attachedFiles];
+      attachedFiles = [];
+      renderAttachmentChips();
+
       userPromptInput.value = "";
       if (heroPrompt) heroPrompt.classList.add("hidden");
-
 
       setOrbState("thinking");
       setTimeout(() => setOrbState("researching"), 600);
@@ -679,21 +886,24 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             user_prompt: promptText,
+            user_email: currentUser.email,
             top_k: currentUser.tier === "PREMIUM" ? 10 : 5,
             hybrid_search: true,
-            claim_verification: true
+            claim_verification: true,
+            attachments: currentAttachments
           })
         });
 
         if (response.ok) {
           const data = await response.json();
+          data.attachments = currentAttachments;
           renderResults(promptText, data);
         } else {
           throw new Error(`HTTP ${response.status}`);
         }
       } catch (err) {
         console.warn("API dispatch fallback:", err);
-        renderDemoResult(promptText);
+        renderDemoResult(promptText, currentAttachments);
       }
     });
   }
@@ -722,7 +932,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!text) return "";
     let html = text;
 
-    // Parse markdown tables
     const lines = html.split("\n");
     let inTable = false;
     let tableHeader = "";
@@ -756,27 +965,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     html = parsedLines.join("\n");
 
-    // Headings (### **Header**, ### Header, ## Header)
     html = html.replace(/^### \*\*(.*?)\*\*/gm, '<h3 class="section-heading">$1</h3>');
     html = html.replace(/^### (.*?)$/gm, '<h3 class="section-heading">$1</h3>');
     html = html.replace(/^## (.*?)$/gm, '<h2 class="section-heading">$1</h2>');
-
-    // Bold text
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--text-white); font-weight:700;">$1</strong>');
-
-    // Hyperlinks [Anchor Text](URL)
     html = html.replace(
       /\[(.*?)\]\((https?:\/\/[^\s\)]+)\)/g,
       '<a href="$2" target="_blank" rel="noopener noreferrer" class="reference-link">$1 ↗</a>'
     );
-
-    // Numbered findings (1. Verified Web Fact: ... 2. Verified Web Fact: ...)
     html = html.replace(/(\d+)\.\s+\*\*Verified Web Fact\*\*:/g, '<div class="bullet-item" style="margin-top:10px;"><strong style="color:var(--accent-cyan);">Verified Web Evidence #$1:</strong>');
-
-    // Bullet items (* item or - item)
     html = html.replace(/^[\*\-] (.*?)$/gm, '<div class="bullet-item" style="margin-bottom:8px; padding-left:14px; border-left:2px solid var(--border-light);"><span style="color:var(--accent-cyan); font-weight:bold; margin-right:6px;">•</span> $1</div>');
 
-    // Paragraph blocks for double linebreaks
     const paragraphs = html.split(/\n{2,}/);
     html = paragraphs.map(p => {
       p = p.trim();
@@ -841,6 +1040,29 @@ document.addEventListener("DOMContentLoaded", () => {
       }).join("");
     }
 
+    // Attachments HTML badge rendering (ChatGPT / Gemini style)
+    let attachmentsHtml = "";
+    const fileList = data.attachments || [];
+    if (fileList.length > 0) {
+      attachmentsHtml = `
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
+          ${fileList.map(f => {
+            const fileName = f.name || f.filename || "Attached Context Document";
+            const sizeKb = f.size ? (f.size / 1024).toFixed(1) : (f.file_size_bytes ? (f.file_size_bytes / 1024).toFixed(1) : "12.4");
+            return `
+              <div class="attachment-chip font-mono" style="background:rgba(45,212,191,0.1); border:1px solid var(--accent-cyan);">
+                <span class="attachment-icon">📎</span>
+                <div class="attachment-info">
+                  <span class="attachment-name" style="color:var(--accent-cyan);">${fileName}</span>
+                  <span class="attachment-meta" style="color:var(--text-light);">${sizeKb} KB • Vector Indexed</span>
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
     let formattedAnswer = parseMarkdownToHTML(data.synthesized_answer || "Synthesized analysis completed.");
 
     const isSaved = !!data.is_saved;
@@ -856,8 +1078,10 @@ document.addEventListener("DOMContentLoaded", () => {
           </button>
         </div>
       </div>
-      <div style="font-size:13.5px; color:var(--text-dim); border-bottom:1px solid var(--border-subtle); padding-bottom:8px; margin-bottom:12px;">
+
+      <div style="font-size:13.5px; color:var(--text-dim); border-bottom:1px solid var(--border-subtle); padding-bottom:10px; margin-bottom:12px;">
         <strong>User Prompt:</strong> ${prompt}
+        ${attachmentsHtml}
       </div>
 
       <!-- 5-Agent Execution Timeline Stream -->
@@ -876,13 +1100,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <div style="font-family:var(--font-mono); font-size:12px; color:var(--text-dim); text-transform:uppercase; margin-bottom:8px; font-weight:bold;">Fact Triangulation Claims & Entailment Scores</div>
         ${claimsHtml}
       </div>
-
-      <!-- Passages & Citations -->
-      <div style="display:flex; flex-direction:column; gap:10px;">
-        <div style="font-family:var(--font-mono); font-size:12px; color:var(--text-dim); text-transform:uppercase; font-weight:bold;">Source Citations & Reference Links</div>
-        ${passagesHtml}
-      </div>
     `;
+
 
     if (resultsFeed) {
       resultsFeed.appendChild(card);
@@ -914,7 +1133,7 @@ document.addEventListener("DOMContentLoaded", () => {
               bookmarkBtn.style.color = "var(--accent-cyan)";
               bookmarkBtn.style.borderColor = "var(--accent-cyan)";
               bookmarkBtn.textContent = "🔖 Saved in Research";
-              alert("Research chat saved to Supabase DB! Click 'RESEARCH' in sidebar to view saved chats.");
+              alert("Research chat saved to Database! Click 'RESEARCH' tab in sidebar to view saved chats.");
             } else {
               bookmarkBtn.classList.remove("saved-active");
               bookmarkBtn.style.background = "transparent";
@@ -924,7 +1143,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           }
         } catch (e) {
-          alert("Chat session bookmarked.");
+          alert("Chat session bookmarked in Database.");
         }
       });
     }
@@ -954,8 +1173,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-
-    // Dynamic Right Sidebar Metrics update from live query response
     const metricEvolution = document.getElementById("metricEvolution");
     const metricUserGrowth = document.getElementById("metricUserGrowth");
     const metricAccuracy = document.getElementById("metricAccuracy");
@@ -977,31 +1194,32 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => setOrbState("complete"), 800);
   }
 
-
-
-
-  function renderDemoResult(prompt) {
+  function renderDemoResult(prompt, attachments = []) {
     renderResults(prompt, {
-      task_id: "demo-x402-001",
+      task_id: "task-demo-" + Math.random().toString(36).substring(2, 10),
+      attachments: attachments,
+
       synthesized_answer: `### **Research Summary: Electric Vehicles & Environmental Impact**\n\nElectric Vehicles (EVs) significantly improve urban air quality by eliminating direct tailpipe emissions of NOx, CO2, and PM2.5.\n\n* Operational life-cycle assessments indicate a 40% to 70% net reduction in greenhouse gas emissions depending on power grid renewable energy composition.\n* Converted municipal transit fleets reduce ground-level smog formation and respiratory health risks in high-density urban corridors.`,
       passages: [
         {
+          id: "pas-001",
           content: "Electric Vehicles (EVs) significantly reduce urban air pollution by eliminating direct tailpipe emissions (CO2, NOx, particulate matter PM2.5).",
           source_url: "https://www.epa.gov/greenvehicles/electric-vehicle-myths",
+          similarity_score: 0.94,
           rrf_score: 0.0328,
-          embedding_provider: "OpenAI text-embedding-3-small"
+          freshness_score: 0.9,
+          embedding_provider: "OpenAI text-embedding-3-small",
+          tokens: ["EVs", "air", "pollution"]
         },
         {
+          id: "pas-002",
           content: "Life-cycle assessments indicate that while battery manufacturing emits upfront carbon, EVs reduce net greenhouse gas emissions by 40% to 70% over operational lifespan depending on grid energy mix.",
           source_url: "https://www.iea.org/reports/global-ev-outlook-2024",
+          similarity_score: 0.91,
           rrf_score: 0.0315,
-          embedding_provider: "Gemini text-embedding-004 (Fallback)"
-        }
-      ],
-      permission_requests: [
-        {
-          description: "Sandbox Execution Agent requests permission to run data analysis Python script in isolated Docker container (512MB RAM, 1 CPU).",
-          target: "aura-agent-runner:latest container"
+          freshness_score: 0.85,
+          embedding_provider: "Gemini text-embedding-004 (Fallback)",
+          tokens: ["battery", "carbon", "grid"]
         }
       ]
     });

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AURA - Autonomous Research Intelligence System</title>
-  <meta name="description" content="AURA - Autonomous Research Intelligence with 5-Agent LangGraph DAG, AST Governance & x402 Protocol Payments">
+  <title>AURA - Autonomous Unified Research Agent</title>
+  <meta name="description" content="AURA - Autonomous Unified Research Agent with 5-Agent LangGraph DAG, AST Governance & x402 Protocol Payments">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,9 +23,10 @@
     <!-- Landing Top Navigation Bar -->
     <header class="landing-header font-mono">
       <div class="landing-brand">
-        <span class="brand-title">AURA <span class="brand-symbol">◌</span></span>
-        <span class="brand-subtitle">Autonomous Research Intelligence</span>
+        <span class="brand-title"><img src="/static/logo.png" class="brand-logo-inline" alt="AURA Logo" />AURA</span>
+        <span class="brand-subtitle">Autonomous Unified Research Agent</span>
       </div>
+
 
       <nav class="landing-nav font-sans">
         <a href="#landingFeatures" class="landing-link">Features</a>
@@ -37,8 +38,9 @@
     <!-- Landing Hero Banner -->
     <section class="landing-hero">
       <p class="landing-hero-subtitle">
-        Autonomous Research Intelligence Ecosystem — 5-Agent LangGraph DAG, AST Governance Gatekeeper & x402 Machine Payment Standard
+        Autonomous Unified Research Agent Ecosystem — 5-Agent LangGraph DAG, AST Governance Gatekeeper & x402 Machine Payment Standard
       </p>
+
 
       <div class="landing-hero-actions font-mono">
         <button class="btn-hero-launch" id="landingLaunchAppBtn">
@@ -110,9 +112,10 @@
     <!-- Top System Header Bar -->
     <header class="top-header-bar font-mono">
       <div class="header-left">
-        <span class="brand-title">AURA <span class="brand-symbol">◌</span></span>
-        <span class="brand-subtitle">Autonomous Research Intelligence</span>
+        <span class="brand-title"><img src="/static/logo.png" class="brand-logo-inline" alt="AURA Logo" />AURA</span>
+        <span class="brand-subtitle">Autonomous Unified Research Agent</span>
       </div>
+
       <div class="header-right">
         
         <!-- Profile Circle Button & Dropdown Menu -->
@@ -155,19 +158,16 @@
       
       <!-- Left Intelligence Sidebar Navigation -->
       <aside class="sidebar-left">
-        <div class="sidebar-header">
-          <div class="logo-circle">A</div>
-        </div>
+        <nav class="nav-menu" style="margin-top: 10px;">
 
-        <nav class="nav-menu">
           <button class="nav-item active" data-tab="overview">OVERVIEW</button>
           <button class="nav-item" data-tab="research">RESEARCH</button>
           <button class="nav-item" data-tab="records" id="openRecordsBtn">YOUR RECORDS</button>
           <button class="nav-item" data-tab="sources">SOURCES</button>
-          <button class="nav-item" data-tab="experiments">EXPERIMENTS</button>
           <button class="nav-item" id="openGovernanceNavBtn">GOVERNANCE</button>
-          <button class="nav-item" data-tab="activity">ACTIVITY</button>
+          <button class="nav-item" data-tab="activity">RECENT ACTIVITY</button>
         </nav>
+
 
         <div class="sidebar-footer">
           <div class="system-status font-mono">
@@ -218,20 +218,27 @@
 
           <!-- Input Box (Asking AURA) -->
           <div class="input-section">
+            
+            <!-- ChatGPT / Gemini Style Uploaded Attachment Preview Container -->
+            <div class="attached-files-container hidden" id="attachedFilesContainer"></div>
+            
+            <!-- Hidden Direct File Input -->
+            <input type="file" id="directFileInput" class="hidden" multiple accept=".pdf,.txt,.csv,.py,.js,.html,.json,.md,.doc,.docx" />
+
             <form id="researchForm" class="diagram-input-box">
               <input 
                 type="text" 
                 id="userPrompt" 
-                placeholder="Ask AURA anything..." 
+                placeholder="Ask AURA anything or speak your prompt..." 
                 autocomplete="off"
                 required
               />
               
               <div class="input-actions font-mono">
-                <button type="button" class="icon-input-btn" id="voiceBtn" title="Voice Research Query (Microphone)">
+                <button type="button" class="icon-input-btn" id="voiceBtn" title="Voice Research Query (Microphone continuous mode)">
                   🎙️
                 </button>
-                <button type="button" class="icon-input-btn" id="attachContextBtn" title="Attach Research Context File">
+                <button type="button" class="icon-input-btn" id="attachContextBtn" title="Attach Research Context File (PDF, TXT, CSV, Code)">
                   📎
                 </button>
                 <button type="submit" id="submitBtn" class="send-icon-btn" title="Submit Research Task">
@@ -240,10 +247,15 @@
               </div>
             </form>
 
-            <!-- Voice Recording Indicator -->
+            <!-- Voice Recording Indicator with Continuous Transcript & Stop Button -->
             <div class="voice-status-indicator hidden font-mono" id="voiceStatus">
-              <span class="blink-light pulse-red"></span> AURA Listening... Speak your research query.
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="blink-light pulse-red"></span>
+                <span id="voiceStatusText">AURA Listening... Speak continuously.</span>
+              </div>
+              <button type="button" class="voice-stop-btn font-mono" id="stopVoiceBtn">Stop Listening</button>
             </div>
+
 
             <!-- Suggested Directions -->
             <div class="suggested-directions-container font-mono">
@@ -298,12 +310,13 @@
         <!-- Top Profile / User Box -->
         <div class="profile-box">
           <div class="user-info">
-            <div class="avatar">A</div>
             <div>
               <div class="user-name" id="profileUserName">Anuj</div>
               <div class="user-tier-badge font-mono" id="profileUserTier">FREEMIUM TIER</div>
             </div>
           </div>
+
+
 
           <div class="profile-menu">
             <button class="profile-link" id="openAuthBtn">Sign In</button>

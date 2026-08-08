@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # x402 Payment Protocol Configuration & Resource Server
-X402_RECIPIENT_WALLET = "0x402AURA98F290c41A87D25b3491E6200B41E10"
-DEFAULT_MICRO_PAYMENT_USDC = 5.00
+X402_RECIPIENT_WALLET = "QU24Q46ETY6ISO3U6UF546HUOM2UJ66Z74SVNRXH55NNIHW3523AUYPHFY"
+DEFAULT_MICRO_PAYMENT_USDC = 0.005
 
 x402_server = x402ResourceServer()
 
@@ -37,6 +37,7 @@ class X402ChallengeResponse(BaseModel):
     x402_protocol_version: int = 1
     x402_requirements: Dict[str, Any]
     instructions: str
+    faucet_links: Dict[str, str]
 
 
 class X402VerifyRequest(BaseModel):
@@ -58,19 +59,19 @@ class X402VerifyResponse(BaseModel):
 async def generate_x402_challenge(request: X402ChallengeRequest):
     """
     Generate an HTTP 402 Payment Required challenge payload as specified in the official x402 protocol standard.
-    Allows AI agents and users to construct machine-to-machine crypto/stablecoin payments.
+    Allows AI agents and users to construct machine-to-machine crypto/stablecoin payments via Algorand TestNet (ASA 10458941) or Circle USDC.
     """
     challenge_id = f"x402-ch-{uuid.uuid4().hex[:12]}"
     
     # Construct official x402 Payment Requirements
     x402_req = PaymentRequirementsV1(
         scheme="exact",
-        network="evm:eip155:1", # Ethereum / Base EVM network
-        amount="5000000", # 5.00 USDC (6 decimals)
-        asset="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", # USDC token contract
+        network="algorand:testnet", # Algorand TestNet CAIP-2
+        amount="5000", # 0.005 USDC (6 decimals)
+        asset="10458941", # Algorand TestNet USDC ASA ID
         payTo=X402_RECIPIENT_WALLET,
         resource=request.feature_requested,
-        maxAmountRequired="5000000",
+        maxAmountRequired="5000",
         maxTimeoutSeconds=3600
     )
 
@@ -86,16 +87,22 @@ async def generate_x402_challenge(request: X402ChallengeRequest):
         title="HTTP 402 Payment Required - x402 Agentic Protocol",
         recipient_wallet=X402_RECIPIENT_WALLET,
         amount_usdc=DEFAULT_MICRO_PAYMENT_USDC,
-        accepted_currencies=["USDC", "ETH", "SOL"],
+        accepted_currencies=["USDC (Algorand TestNet)", "USDC (Circle)", "ETH", "SOL"],
         challenge_id=challenge_id,
         payment_header_required="X-PAYMENT",
         x402_protocol_version=1,
         x402_requirements=x402_payload.model_dump(),
         instructions=(
             f"Send {DEFAULT_MICRO_PAYMENT_USDC} USDC to recipient {X402_RECIPIENT_WALLET} "
-            f"and present the signed transaction hash in the X-PAYMENT header to unlock premium agentic research."
+            f"and present the signed transaction ID in the X-PAYMENT header to unlock premium agentic research."
         ),
+        faucet_links={
+            "lute": f"https://lute.app/{X402_RECIPIENT_WALLET}",
+            "lora": "https://lora.algokit.io/testnet/fund",
+            "faucet_circle": "https://faucet.circle.com/"
+        }
     )
+
 
 
 

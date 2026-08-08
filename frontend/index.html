@@ -560,32 +560,39 @@
 
         <!-- Recipient Crypto Wallet -->
         <div class="wallet-box">
-          <div class="wallet-label font-mono">RECIPIENT CRYPTO WALLET ADDRESS (USDC / ETH / SOL):</div>
-          <div class="wallet-address font-mono" id="x402WalletAddr">0x402AURA98F290c41A87D25b3491E6200B41E10</div>
+          <div class="wallet-label font-mono">RECIPIENT AVM / USDC WALLET ADDRESS:</div>
+          <div class="wallet-address font-mono" id="x402WalletAddr">QU24Q46ETY6ISO3U6UF546HUOM2UJ66Z74SVNRXH55NNIHW3523AUYPHFY</div>
+          <div style="margin-top:8px; display:flex; gap:10px; flex-wrap:wrap; font-size:12px; font-family:var(--font-mono);">
+            <a href="https://lute.app/QU24Q46ETY6ISO3U6UF546HUOM2UJ66Z74SVNRXH55NNIHW3523AUYPHFY" target="_blank" rel="noopener noreferrer" style="color:var(--accent-cyan);">🌐 Open Lute Wallet App ↗</a>
+            <a href="https://lora.algokit.io/testnet/fund" target="_blank" rel="noopener noreferrer" style="color:var(--accent-cyan);">⚡ Lora Testnet Explorer ↗</a>
+            <a href="https://faucet.circle.com/" target="_blank" rel="noopener noreferrer" style="color:var(--accent-cyan);">💧 Circle USDC Faucet ↗</a>
+          </div>
         </div>
 
         <!-- User Payer Wallet Address Input -->
         <div class="payer-wallet-input-box">
-          <label class="wallet-label font-mono">YOUR SENDER CRYPTO WALLET ADDRESS (USDC / ETH / SOL):</label>
+          <label class="wallet-label font-mono">YOUR SENDER CRYPTO WALLET ADDRESS / TXID:</label>
           <input 
             type="text" 
             id="userPayerWalletInput" 
             class="font-mono payer-wallet-input" 
-            placeholder="Enter your crypto wallet address (e.g. 0xYourWalletAddress...)" 
+            placeholder="Enter your Algorand AVM address or transaction hash..." 
           />
         </div>
 
         <!-- HTTP 402 Header Inspector -->
         <div class="challenge-inspector">
-          <div class="inspector-title font-mono">REQUEST HEADER CHALLENGE INSPECTOR:</div>
+          <div class="inspector-title font-mono">REQUEST HEADER CHALLENGE INSPECTOR (x402 AVM STANDARD):</div>
           <div class="code-block font-mono">
 HTTP/1.1 402 Payment Required
 X-Payment-Protocol: x402-agentic-v1
-X-Payment-Recipient: 0x402AURA98F290c41A87D25b3491E6200B41E10
-X-Payment-Amount: 5.00 USDC
+X-Payment-Network: algorand:testnet (ASA #10458941)
+X-Payment-Recipient: QU24Q46ETY6ISO3U6UF546HUOM2UJ66Z74SVNRXH55NNIHW3523AUYPHFY
+X-Payment-Amount: 0.005 USDC
 X-Payment-Header-Required: X-PAYMENT
           </div>
         </div>
+
 
         <!-- Payment Actions -->
         <div class="x402-actions">
